@@ -22,6 +22,15 @@
 </head>
 <body class="bg-slate-50 min-h-screen flex flex-col">
 
+    <!-- KHAI BÁO CÁC FILE ÂM THANH -->
+    <audio id="snd-kd-bg" src="KĐ_60s_left_O11.mp3.mp3" preload="auto"></audio>
+    <audio id="snd-kd-correct" src="KĐ_đúng_left_O10.mp3.mp3" preload="auto"></audio>
+    <audio id="snd-kd-wrong" src="KĐ_sai_O7.mp3.mp3" preload="auto"></audio>
+    <audio id="snd-vd-20" src="VĐ_20s_right_O22.mp3.mp3" preload="auto"></audio>
+    <audio id="snd-vd-30" src="VĐ_30s_O22.mp3.mp3" preload="auto"></audio>
+    <audio id="snd-vd-correct" src="VĐ_đúng_left_O7.mp3.mp3" preload="auto"></audio>
+    <audio id="snd-vd-wrong" src="VĐ_sai_right_O7.mp3" preload="auto"></audio>
+
     <!-- MÀN HÌNH ĐĂNG NHẬP -->
     <div id="login-screen" class="fixed inset-0 z-[100] gradient-bg flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 text-center space-y-5">
@@ -55,7 +64,7 @@
                 <button onclick="showPage('home')" class="px-4 py-2 rounded-lg font-semibold text-slate-600 hover:text-blue-600 hover:bg-slate-100 transition">Trang chủ</button>
                 <button onclick="showPage('leaderboard')" class="px-4 py-2 rounded-lg font-semibold text-slate-600 hover:text-blue-600 hover:bg-slate-100 transition">Bảng xếp hạng</button>
                 <button onclick="showPage('saved-questions')" class="px-4 py-2 rounded-lg font-semibold text-slate-600 hover:text-blue-600 hover:bg-slate-100 transition">Câu đã lưu (<span id="saved-count">0</span>)</button>
-                <button id="nav-admin" onclick="showPage('admin')" class="hidden px-4 py-2 rounded-lg font-semibold text-slate-600 hover:text-blue-600 hover:bg-slate-100 transition">Ngân hàng câu hỏi</button>
+                <button id="nav-admin" onclick="showPage('admin')" class="px-4 py-2 rounded-lg font-semibold text-slate-600 hover:text-blue-600 hover:bg-slate-100 transition">Ngân hàng câu hỏi</button>
             </nav>
 
             <div id="user-section" class="flex items-center space-x-2"></div>
@@ -64,7 +73,7 @@
             <button onclick="showPage('home')" class="py-2 px-2">Trang chủ</button>
             <button onclick="showPage('leaderboard')" class="py-2 px-2">Xếp hạng</button>
             <button onclick="showPage('saved-questions')" class="py-2 px-2">Đã lưu</button>
-            <button id="nav-admin-m" onclick="showPage('admin')" class="hidden py-2 px-2">Ngân hàng</button>
+            <button id="nav-admin-m" onclick="showPage('admin')" class="py-2 px-2">Ngân hàng</button>
         </nav>
     </header>
 
@@ -335,15 +344,15 @@
             </div>
         </div>
 
-        <!-- 7. NGÂN HÀNG CÂU HỎI (CHỈ ADMIN) -->
+        <!-- 7. NGÂN HÀNG CÂU HỎI -->
         <div id="page-admin" class="hidden max-w-6xl mx-auto page-section">
             <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 space-y-5">
                 <div class="flex flex-wrap gap-3 justify-between items-center border-b pb-3">
                     <div>
-                        <h3 class="text-xl font-bold text-slate-800">⚙️ Quản lý Ngân hàng Câu hỏi</h3>
-                        <p class="text-xs text-slate-500">Chỉ quản trị viên mới thấy và chỉnh sửa được phần này.</p>
+                        <h3 class="text-xl font-bold text-slate-800">📖 Ngân hàng Câu hỏi</h3>
+                        <p id="bank-subtitle" class="text-xs text-slate-500">Danh sách toàn bộ câu hỏi trong hệ thống.</p>
                     </div>
-                    <div class="flex flex-wrap gap-2">
+                    <div id="admin-actions-group" class="hidden flex-wrap gap-2">
                         <button onclick="seedQuestions()" id="btn-seed" class="hidden bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-bold">Nạp câu hỏi mẫu</button>
                         <button onclick="openImportModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-bold shadow">⇪ Nhập câu hỏi tự động</button>
                         <button onclick="openQuestionModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-bold shadow">+ Thêm câu hỏi mới</button>
@@ -359,7 +368,7 @@
                             <table class="w-full text-left border-collapse text-sm">
                                 <thead>
                                     <tr class="bg-slate-100 text-slate-700 font-bold border-b">
-                                        <th class="p-3">STT</th><th class="p-3">Phần thi</th><th class="p-3">Nội dung câu hỏi</th><th class="p-3">Đáp án</th><th class="p-3 text-center">Thao tác</th>
+                                        <th class="p-3">STT</th><th class="p-3">Phần thi</th><th class="p-3">Nội dung câu hỏi</th><th class="p-3">Đáp án</th><th id="th-action" class="p-3 text-center hidden">Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody id="admin-question-table"></tbody>
@@ -511,11 +520,27 @@
             { id: 'seed4', type: 'vedich30', source: "NVT's Quiztopia", content: 'August Kekulé với giấc mơ về "một con rắn đang nắm lấy đuôi của chính nó" đã giúp ông phát hiện ra cấu trúc của hợp chất hóa học nào?', answer: 'benzen' }
         ];
 
-        // <PURE> — các hàm thuần (không đụng DOM/Firebase), được kiểm thử riêng
+        // Quản lý âm thanh
+        window.playAudio = function(id) {
+            const a = document.getElementById(id);
+            if (a) {
+                a.currentTime = 0;
+                a.play().catch(e => console.log('Audio error:', e));
+            }
+        };
+        window.stopAudio = function(id) {
+            const a = document.getElementById(id);
+            if (a) {
+                a.pause();
+                a.currentTime = 0;
+            }
+        };
+        window.stopAllGameAudio = function() {
+            ['snd-kd-bg', 'snd-kd-correct', 'snd-kd-wrong', 'snd-vd-20', 'snd-vd-30', 'snd-vd-correct', 'snd-vd-wrong'].forEach(stopAudio);
+        };
+
         const normalizeStr = (str) => String(str || '').toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, 'd').replace(/\s+/g, '').trim();
 
-        // Đáp án mở rộng: chỉ tách tại dấu "/" có khoảng trắng liền sau (hoặc liền trước).
-        // "Silic/ Si/ Silicon" => 3 đáp án; "km/h", "1/2", "Silic/Si" => giữ nguyên là 1 đáp án.
         function splitAnswers(ans) {
             return String(ans || '').split(/(?<=\s)\/|\/(?=\s)/).map(normalizeStr).filter(Boolean);
         }
@@ -525,10 +550,9 @@
             return splitAnswers(ans).includes(u);
         }
 
-        // Khóa tuần: ngày của thứ Hai (GMT+7) đang chứa thời điểm ms. Sang 0:00 thứ Hai GMT+7 khóa đổi => bảng xếp hạng mới.
         function weekKeyGMT7(ms = Date.now()) {
             const d = new Date(ms + 7 * 3600 * 1000);
-            const dow = (d.getUTCDay() + 6) % 7; // Thứ Hai = 0
+            const dow = (d.getUTCDay() + 6) % 7;
             return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - dow)).toISOString().slice(0, 10);
         }
 
@@ -541,7 +565,6 @@
             return m ? 'vedich' + m[2] : null;
         }
 
-        // Dòng không có ký tự phân cách: "Khởi động VTV3: O26 - T3 Q4 Câu hỏi...? Đáp án"
         function parseSpaceLine(line) {
             let rest = line.trim(), type = null, m;
             if ((m = rest.match(/^(khởi\s*động|khoi\s*dong|kđ|kd)(?=\s|$)/i))) { type = 'khoidong'; rest = rest.slice(m[0].length).trim(); }
@@ -583,7 +606,6 @@
                 return r.err ? { ok: false, err: r.err, raw: line } : { ok: true, type: r.type, source: r.source, content: r.content, answer: r.answer };
             });
         }
-        // </PURE>
 
         // ---------- Tiện ích ----------
         const $ = (id) => document.getElementById(id);
@@ -623,8 +645,20 @@
         window.logout = async function () { cancelGames(); await signOut(auth); };
 
         function applyAdminUI() {
-            $('nav-admin').classList.toggle('hidden', !isAdmin);
-            $('nav-admin-m').classList.toggle('hidden', !isAdmin);
+            // Ngân hàng câu hỏi luôn hiện cho tất cả người dùng
+            $('nav-admin').classList.remove('hidden');
+            $('nav-admin-m').classList.remove('hidden');
+            
+            // Các chức năng chỉnh sửa chỉ hiện cho Admin
+            $('admin-actions-group').classList.toggle('hidden', !isAdmin);
+            $('admin-actions-group').classList.toggle('flex', isAdmin);
+            $('th-action').classList.toggle('hidden', !isAdmin);
+            
+            if (!isAdmin) {
+                $('bank-subtitle').innerText = 'Tra cứu và xem danh sách toàn bộ câu hỏi trong hệ thống.';
+            } else {
+                $('bank-subtitle').innerText = 'Quản lý, thêm, sửa, xóa câu hỏi trong hệ thống.';
+            }
         }
 
         onAuthStateChanged(auth, async (user) => {
@@ -664,7 +698,7 @@
                     createdAt: serverTimestamp()
                 };
                 await setDoc(ref, profile);
-                sendWelcomeEmail(user); // không chặn giao diện
+                sendWelcomeEmail(user);
             }
             savedIds = profile.saved || [];
         }
@@ -693,7 +727,6 @@
         // ---------- Điều hướng ----------
         const GAME_PAGES = ['khoidong', 'vedich-playing', 'kd-result', 'vd-result'];
         window.showPage = function (id) {
-            if (id === 'admin' && !isAdmin) { toast('Chỉ quản trị viên mới truy cập được ngân hàng câu hỏi.'); return; }
             if (!GAME_PAGES.includes(id)) cancelGames();
             document.querySelectorAll('.page-section').forEach(s => s.classList.add('hidden'));
             const el = $('page-' + id);
@@ -763,7 +796,7 @@
             } catch (e) { toast('Lỗi: ' + (e.code || e.message)); }
         };
 
-        // ---------- Ngân hàng câu hỏi (admin) ----------
+        // ---------- Ngân hàng câu hỏi ----------
         async function loadQuestions() {
             const snap = await getDocs(collection(db, 'questions'));
             questionBank = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -782,8 +815,7 @@
         }
 
         function renderAdminTable() {
-            if (!isAdmin) return;
-            $('btn-seed').classList.toggle('hidden', questionBank.length !== 0);
+            $('btn-seed').classList.toggle('hidden', !isAdmin || questionBank.length !== 0);
             styleTabs({ kd: 'bank-tab-kd', vd: 'bank-tab-vd' }, bankTab);
             $('bank-count-kd').innerText = `(${bankList('kd').length})`;
             $('bank-count-vd').innerText = `(${bankList('vd').length})`;
@@ -800,7 +832,7 @@
 
             const tbody = $('admin-question-table');
             if (slice.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500">Chưa có câu hỏi nào trong phần này.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${isAdmin ? 5 : 4}" class="p-6 text-center text-slate-500">Chưa có câu hỏi nào trong phần này.</td></tr>`;
                 return;
             }
             tbody.innerHTML = slice.map((q, i) => `
@@ -809,10 +841,10 @@
                     <td class="p-3 font-semibold text-blue-600 text-xs whitespace-nowrap">${esc(typeLabel[q.type] || q.type)}</td>
                     <td class="p-3">${esc(q.content)}<div class="text-[11px] text-slate-400 mt-1">${esc(q.source)}</div></td>
                     <td class="p-3 font-bold text-green-700">${esc(q.answer)}</td>
-                    <td class="p-3 text-center space-x-3 whitespace-nowrap">
+                    ${isAdmin ? `<td class="p-3 text-center space-x-3 whitespace-nowrap">
                         <button onclick="openQuestionModal('${esc(q.id)}')" class="text-blue-600 font-semibold hover:underline">Sửa</button>
                         <button onclick="deleteQuestion('${esc(q.id)}')" class="text-red-500 font-semibold hover:underline">Xóa</button>
-                    </td>
+                    </td>` : ''}
                 </tr>`).join('');
         }
 
@@ -883,7 +915,6 @@
         window.closeImportModal = function () { $('import-modal').classList.add('hidden'); $('import-modal').classList.remove('flex'); };
 
         window.updateImportPreview = function (ev) {
-            // Gõ vào ô "Tùy chọn" thì tự chọn radio tương ứng
             if (ev?.target?.id === 'imp-field-custom') document.querySelector('input[name=imp-field][value=custom]').checked = true;
             if (ev?.target?.id === 'imp-card-custom') document.querySelector('input[name=imp-card][value=custom]').checked = true;
 
@@ -981,7 +1012,7 @@
         window.nextSavedCard = () => { currentSavedIndex++; renderSavedQuestions(); };
         window.removeSaved = async (id) => { await toggleSaveQuestion(id, null); renderSavedQuestions(); };
 
-        // ---------- Bảng xếp hạng (reset ngầm 0:00 thứ Hai hằng tuần, GMT+7) ----------
+        // ---------- Bảng xếp hạng ----------
         async function submitScore(type, score) {
             const col = type === 'kd' ? 'lb_kd' : 'lb_vd';
             try {
@@ -989,7 +1020,6 @@
                 const ref = doc(db, col, authUser.uid);
                 const snap = await getDoc(ref);
                 const cur = snap.exists() ? snap.data() : null;
-                // Tuần mới => ghi đè dù thấp hơn; cùng tuần => chỉ ghi khi cao hơn
                 if (!cur || cur.weekKey !== wk || score > cur.score) {
                     await setDoc(ref, { label: labelOf(profile), score, weekKey: wk, updatedAt: serverTimestamp() });
                 }
@@ -1009,7 +1039,7 @@
             tb.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-slate-400">Đang tải...</td></tr>';
             try {
                 const snap = await getDocs(query(collection(db, isKd ? 'lb_kd' : 'lb_vd'), where('weekKey', '==', weekKeyGMT7())));
-                if (req !== lbReq) return; // người dùng đã chuyển tab
+                if (req !== lbReq) return;
                 const rows = snap.docs.map(d => ({ id: d.id, ...d.data() }))
                     .sort((a, b) => b.score - a.score || tsMs(a.updatedAt) - tsMs(b.updatedAt)).slice(0, 50);
                 if (rows.length === 0) { tb.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-slate-400">Chưa có ai trên bảng xếp hạng.</td></tr>'; return; }
@@ -1028,6 +1058,7 @@
             clearTimeout(kdTimer); kdRunning = false;
             clearInterval(vdTimer); vdTimer = null;
             clearTimeout(vdLuckTimer); clearTimeout(vdDelayTimer);
+            stopAllGameAudio();
         }
 
         window.startKhoidong = function () {
@@ -1038,6 +1069,10 @@
             kdCurrentIndex = 0; kdScore = 0; kdUserAnswers = []; kdRunning = true;
             $('kd-score').innerText = 0;
             loadKdQuestion();
+            
+            // Phát âm thanh đếm giờ KĐ 60s
+            playAudio('snd-kd-bg');
+
             const bar = $('kd-timer-bar');
             bar.style.transition = 'none'; bar.style.width = '100%';
             setTimeout(() => { bar.style.transition = 'width 30s linear'; bar.style.width = '0%'; }, 50);
@@ -1057,7 +1092,14 @@
             const ans = $('kd-answer-input').value;
             const q = kdQuestions[kdCurrentIndex];
             const ok = checkAnswer(ans, q.answer);
-            if (ok) kdScore += 10;
+            
+            if (ok) {
+                kdScore += 10;
+                playAudio('snd-kd-correct');
+            } else {
+                playAudio('snd-kd-wrong');
+            }
+
             $('kd-score').innerText = kdScore;
             kdUserAnswers.push({ question: q, userAns: ans, correct: ok });
             kdCurrentIndex++;
@@ -1066,6 +1108,7 @@
 
         async function finishKhoidong() {
             kdRunning = false; clearTimeout(kdTimer);
+            stopAudio('snd-kd-bg');
             showPage('kd-result');
             $('kd-final-score').innerText = kdScore;
             $('kd-result-table-body').innerHTML = kdUserAnswers.map((it, i) => resultRowKd(it, i)).join('') ||
@@ -1092,7 +1135,6 @@
         }
 
         // ---------- Thi: VỀ ĐÍCH ----------
-        // Luồng mỗi câu: (hỏi Ngôi sao nếu chưa dùng) -> 5s "Chúc bạn may mắn" -> hiện câu hỏi -> 3s sau mới tính giờ -> hết giờ chấm
         let vdPkgList = [], vdCurrentIndex = 0, vdScore = 0, vdUserAnswers = [], vdTimeRemaining = 15,
             useStarHope = false, usedStarThisGame = false, currentRecordedAns = '';
 
@@ -1115,10 +1157,10 @@
         function setVdStarBadge(on) {
             const el = $('vd-star-badge');
             el.classList.toggle('hidden', !on);
-            el.classList.toggle('star-rise', on); // hiện lại từ display:none sẽ chạy lại hiệu ứng bay từ dưới lên
+            el.classList.toggle('star-rise', on);
         }
 
-        function setVdMode(mode) { // 'luck' | 'question'
+        function setVdMode(mode) {
             const luck = mode === 'luck';
             $('vd-quiz-content').classList.remove('hidden');
             $('vd-timer-wrap').classList.toggle('hidden', luck);
@@ -1149,7 +1191,7 @@
 
         window.answerStar = function (chosen) {
             useStarHope = chosen;
-            if (chosen) usedStarThisGame = true; // chỉ được chọn 1 lần trong 3 câu
+            if (chosen) usedStarThisGame = true;
             $('vd-star-prompt').classList.add('hidden');
             startLuckPhase();
         };
@@ -1170,10 +1212,10 @@
             $('vd-recorded-display').innerText = 'Đáp án ghi nhận: (Chưa nhập)';
             const bar = $('vd-timer-bar');
             bar.style.transition = 'none'; bar.style.width = '100%';
-            if (useStarHope) setVdStarBadge(true); // ngôi sao hiện lên khi câu hỏi hiện ra và ở lại đến hết câu
+            if (useStarHope) setVdStarBadge(true);
             $('vd-answer-input').focus();
             clearTimeout(vdDelayTimer);
-            vdDelayTimer = setTimeout(startVdTimer, VD_READ_DELAY_MS); // 3s sau khi hiện câu hỏi mới bắt đầu tính giờ
+            vdDelayTimer = setTimeout(startVdTimer, VD_READ_DELAY_MS);
         }
 
         window.updateRecordedAnswer = function (val) {
@@ -1185,6 +1227,11 @@
             const item = vdPkgList[vdCurrentIndex];
             vdTimeRemaining = item.points === 20 ? 15 : 20;
             const secs = vdTimeRemaining;
+
+            // Phát âm thanh đếm giờ tương ứng với gói điểm
+            if (item.points === 20) playAudio('snd-vd-20');
+            else playAudio('snd-vd-30');
+
             const bar = $('vd-timer-bar');
             bar.style.transition = 'none'; bar.style.width = '100%';
             setTimeout(() => { bar.style.transition = `width ${secs}s linear`; bar.style.width = '0%'; }, 50);
@@ -1201,9 +1248,16 @@
         };
 
         function processVdAnswerSubmission() {
+            stopAudio('snd-vd-20');
+            stopAudio('snd-vd-30');
+
             const item = vdPkgList[vdCurrentIndex];
             const ok = checkAnswer(currentRecordedAns, item.question.answer);
             const earned = ok ? (useStarHope ? item.points * 2 : item.points) : (useStarHope ? -item.points : 0);
+            
+            if (ok) playAudio('snd-vd-correct');
+            else playAudio('snd-vd-wrong');
+
             vdScore += earned;
             vdUserAnswers.push({ points: item.points, question: item.question, userAns: currentRecordedAns, correct: ok, star: useStarHope });
             useStarHope = false;
@@ -1212,6 +1266,7 @@
         }
 
         function finishVedich() {
+            stopAllGameAudio();
             setVdStarBadge(false);
             showPage('vd-result');
             $('vd-final-score').innerText = vdScore;
