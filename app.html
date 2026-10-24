@@ -9,6 +9,15 @@
     <style>
         body { font-family: 'Montserrat', sans-serif; }
         .gradient-bg { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); }
+        /* Ngôi sao hy vọng bay từ dưới lên */
+        @keyframes starRise {
+            0%   { opacity: 0; transform: translateY(34px) scale(.5); }
+            60%  { opacity: 1; transform: translateY(-6px) scale(1.2); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .star-rise { animation: starRise .9s ease-out both; filter: drop-shadow(0 0 8px rgba(245, 158, 11, .75)); }
+        @keyframes luckPulse { 0%,100% { opacity: .85; } 50% { opacity: 1; } }
+        .luck-text { animation: luckPulse 1.6s ease-in-out infinite; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen flex flex-col">
@@ -46,17 +55,16 @@
                 <button onclick="showPage('home')" class="px-4 py-2 rounded-lg font-semibold text-slate-600 hover:text-blue-600 hover:bg-slate-100 transition">Trang chủ</button>
                 <button onclick="showPage('leaderboard')" class="px-4 py-2 rounded-lg font-semibold text-slate-600 hover:text-blue-600 hover:bg-slate-100 transition">Bảng xếp hạng</button>
                 <button onclick="showPage('saved-questions')" class="px-4 py-2 rounded-lg font-semibold text-slate-600 hover:text-blue-600 hover:bg-slate-100 transition">Câu đã lưu (<span id="saved-count">0</span>)</button>
-                <button onclick="showPage('admin')" class="px-4 py-2 rounded-lg font-semibold text-slate-600 hover:text-blue-600 hover:bg-slate-100 transition">Ngân hàng câu hỏi</button>
+                <button id="nav-admin" onclick="showPage('admin')" class="hidden px-4 py-2 rounded-lg font-semibold text-slate-600 hover:text-blue-600 hover:bg-slate-100 transition">Ngân hàng câu hỏi</button>
             </nav>
 
             <div id="user-section" class="flex items-center space-x-2"></div>
         </div>
-        <!-- Nav mobile -->
         <nav class="md:hidden flex justify-around border-t text-xs font-semibold text-slate-600">
             <button onclick="showPage('home')" class="py-2 px-2">Trang chủ</button>
             <button onclick="showPage('leaderboard')" class="py-2 px-2">Xếp hạng</button>
             <button onclick="showPage('saved-questions')" class="py-2 px-2">Đã lưu</button>
-            <button onclick="showPage('admin')" class="py-2 px-2">Ngân hàng</button>
+            <button id="nav-admin-m" onclick="showPage('admin')" class="hidden py-2 px-2">Ngân hàng</button>
         </nav>
     </header>
 
@@ -226,11 +234,15 @@
         <!-- THI VỀ ĐÍCH -->
         <div id="page-vedich-playing" class="hidden space-y-6 max-w-3xl mx-auto page-section">
             <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 space-y-5">
-                <div class="flex justify-between items-center border-b pb-4">
+                <div class="flex justify-between items-center border-b pb-4 min-h-[4rem]">
                     <span id="vd-question-badge" class="text-xs font-bold px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full">CÂU 1 / 3</span>
-                    <span class="text-sm font-semibold text-slate-600">Điểm hiện tại: <strong id="vd-current-score" class="text-indigo-600 text-lg">0</strong></span>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-sm font-semibold text-slate-600">Điểm hiện tại: <strong id="vd-current-score" class="text-indigo-600 text-lg">0</strong></span>
+                        <span id="vd-star-badge" class="hidden text-4xl leading-none select-none" title="Ngôi sao hy vọng đang được sử dụng">⭐</span>
+                    </div>
                 </div>
 
+                <!-- Hỏi Ngôi sao hy vọng (chỉ hỏi khi chưa dùng) -->
                 <div id="vd-star-prompt" class="bg-amber-50 border border-amber-200 p-5 rounded-xl space-y-3">
                     <h5 class="font-bold text-amber-900 text-base">⭐ Bạn có muốn dùng Ngôi sao hy vọng cho câu hỏi này không?</h5>
                     <p class="text-xs text-amber-700">Đúng nhân đôi điểm, sai trừ đúng số điểm câu hỏi. (Chỉ được dùng 1 lần trong cả lượt thi)</p>
@@ -240,19 +252,20 @@
                     </div>
                 </div>
 
+                <!-- Bảng câu hỏi: lúc đầu hiện lời chúc 5s, sau đó hiện câu hỏi -->
                 <div id="vd-quiz-content" class="hidden space-y-4">
-                    <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                    <div id="vd-timer-wrap" class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
                         <div id="vd-timer-bar" class="bg-indigo-600 h-full w-full"></div>
                     </div>
-                    <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 space-y-3">
+                    <div id="vd-q-box" class="bg-slate-50 p-6 rounded-xl border border-slate-200 space-y-3">
                         <div class="text-xs font-semibold text-slate-400" id="vd-q-source"></div>
-                        <h3 class="text-lg md:text-xl font-bold text-slate-800" id="vd-question-text">Đang tải câu hỏi...</h3>
+                        <h3 class="text-lg md:text-xl font-bold text-slate-800" id="vd-question-text"></h3>
                     </div>
-                    <div class="flex space-x-3">
+                    <div id="vd-answer-row" class="flex space-x-3">
                         <input type="text" id="vd-answer-input" autocomplete="off" placeholder="Nhập đáp án..." class="flex-grow px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-base" oninput="updateRecordedAnswer(this.value)" onkeydown="if(event.key==='Enter') submitVdAnswerPreview()">
                         <button onclick="submitVdAnswerPreview()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-bold shadow transition">Nộp</button>
                     </div>
-                    <div class="p-3 bg-indigo-50 border border-indigo-100 rounded-xl text-sm text-indigo-900 font-medium">
+                    <div id="vd-recorded-box" class="p-3 bg-indigo-50 border border-indigo-100 rounded-xl text-sm text-indigo-900 font-medium">
                         📌 <span id="vd-recorded-display">Đáp án ghi nhận: (Chưa nhập)</span>
                     </div>
                 </div>
@@ -285,26 +298,23 @@
             </div>
         </div>
 
-        <!-- 5. BẢNG XẾP HẠNG -->
-        <div id="page-leaderboard" class="hidden space-y-6 max-w-3xl mx-auto page-section">
-            <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 space-y-6">
+        <!-- 5. BẢNG XẾP HẠNG (cột trái chọn phần thi) -->
+        <div id="page-leaderboard" class="hidden max-w-4xl mx-auto page-section">
+            <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 space-y-5">
                 <h3 class="text-xl font-bold text-slate-800 border-b pb-3">🏆 Bảng Xếp Hạng Thành Tích</h3>
-                <div class="space-y-2">
-                    <h4 class="font-bold text-amber-700 text-sm">🚀 Phần thi Khởi động</h4>
-                    <div class="overflow-x-auto border rounded-xl">
-                        <table class="w-full text-left border-collapse text-sm">
-                            <thead><tr class="bg-slate-100 text-slate-700 font-bold border-b"><th class="p-3">Hạng</th><th class="p-3">Thí sinh</th><th class="p-3 text-right">Điểm</th></tr></thead>
-                            <tbody id="lb-kd-tbody"></tbody>
-                        </table>
+                <div class="flex flex-col md:flex-row gap-5">
+                    <div class="md:w-44 flex md:flex-col gap-2 shrink-0">
+                        <button id="lb-tab-kd" onclick="setLbTab('kd')">🚀 Khởi động</button>
+                        <button id="lb-tab-vd" onclick="setLbTab('vd')">🎯 Về đích</button>
                     </div>
-                </div>
-                <div class="space-y-2 pt-4">
-                    <h4 class="font-bold text-indigo-700 text-sm">🎯 Phần thi Về đích</h4>
-                    <div class="overflow-x-auto border rounded-xl">
-                        <table class="w-full text-left border-collapse text-sm">
-                            <thead><tr class="bg-slate-100 text-slate-700 font-bold border-b"><th class="p-3">Hạng</th><th class="p-3">Thí sinh</th><th class="p-3 text-right">Điểm</th></tr></thead>
-                            <tbody id="lb-vd-tbody"></tbody>
-                        </table>
+                    <div class="flex-1 min-w-0 space-y-2">
+                        <h4 id="lb-title" class="font-bold text-sm"></h4>
+                        <div class="overflow-x-auto border rounded-xl">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead><tr class="bg-slate-100 text-slate-700 font-bold border-b"><th class="p-3">Hạng</th><th class="p-3">Thí sinh</th><th class="p-3 text-right">Điểm</th></tr></thead>
+                                <tbody id="lb-tbody"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -325,29 +335,42 @@
             </div>
         </div>
 
-        <!-- 7. NGÂN HÀNG CÂU HỎI -->
-        <div id="page-admin" class="hidden space-y-6 max-w-5xl mx-auto page-section">
-            <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 space-y-6">
+        <!-- 7. NGÂN HÀNG CÂU HỎI (CHỈ ADMIN) -->
+        <div id="page-admin" class="hidden max-w-6xl mx-auto page-section">
+            <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 space-y-5">
                 <div class="flex flex-wrap gap-3 justify-between items-center border-b pb-3">
                     <div>
-                        <h3 class="text-xl font-bold text-slate-800" id="bank-title">📖 Ngân hàng câu hỏi</h3>
-                        <p id="bank-subtitle" class="text-xs text-slate-500">Bạn chỉ có quyền xem.</p>
+                        <h3 class="text-xl font-bold text-slate-800">⚙️ Quản lý Ngân hàng Câu hỏi</h3>
+                        <p class="text-xs text-slate-500">Chỉ quản trị viên mới thấy và chỉnh sửa được phần này.</p>
                     </div>
-                    <div id="admin-actions" class="hidden space-x-2">
+                    <div class="flex flex-wrap gap-2">
                         <button onclick="seedQuestions()" id="btn-seed" class="hidden bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-bold">Nạp câu hỏi mẫu</button>
+                        <button onclick="openImportModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-bold shadow">⇪ Nhập câu hỏi tự động</button>
                         <button onclick="openQuestionModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-bold shadow">+ Thêm câu hỏi mới</button>
                     </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-sm">
-                        <thead>
-                            <tr class="bg-slate-100 text-slate-700 font-bold border-b">
-                                <th class="p-3">Phần thi</th><th class="p-3">Nội dung câu hỏi</th><th class="p-3">Đáp án</th>
-                                <th class="p-3 text-center admin-only hidden">Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-question-table"></tbody>
-                    </table>
+                <div class="flex flex-col md:flex-row gap-5">
+                    <div class="md:w-44 flex md:flex-col gap-2 shrink-0">
+                        <button id="bank-tab-kd" onclick="setBankTab('kd')">🚀 Khởi động <span id="bank-count-kd" class="opacity-80 font-semibold"></span></button>
+                        <button id="bank-tab-vd" onclick="setBankTab('vd')">🎯 Về đích <span id="bank-count-vd" class="opacity-80 font-semibold"></span></button>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="overflow-x-auto border rounded-xl">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="bg-slate-100 text-slate-700 font-bold border-b">
+                                        <th class="p-3">STT</th><th class="p-3">Phần thi</th><th class="p-3">Nội dung câu hỏi</th><th class="p-3">Đáp án</th><th class="p-3 text-center">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-question-table"></tbody>
+                            </table>
+                        </div>
+                        <div class="flex items-center justify-center space-x-4 pt-5">
+                            <button id="bank-prev" onclick="bankGo(-1)" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm transition disabled:opacity-40">←</button>
+                            <span id="bank-page-indicator" class="text-sm font-bold bg-blue-100 text-blue-800 px-5 py-1.5 rounded-full">1/1</span>
+                            <button id="bank-next" onclick="bankGo(1)" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-sm transition disabled:opacity-40">→</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -378,12 +401,65 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">Đáp án chuẩn:</label>
-                    <input type="text" id="m-answer" placeholder="Nhập đáp án..." class="w-full p-2.5 border rounded-xl">
+                    <input type="text" id="m-answer" placeholder="VD: Silic/ Si/ Silicon (nhiều đáp án cách nhau bằng dấu / + khoảng trắng)" class="w-full p-2.5 border rounded-xl">
+                    <p class="text-[11px] text-slate-400 mt-1">Nhiều đáp án được chấp nhận thì cách nhau bằng dấu <b>/</b> và <b>có khoảng trắng sau dấu /</b> (VD: <i>Silic/ Si/ Silicon</i>). Dấu / viết liền như <i>km/h</i>, <i>1/2</i> được giữ nguyên là một đáp án. Không phân biệt hoa/thường.</p>
                 </div>
             </div>
             <div class="flex justify-end space-x-3 pt-2">
                 <button onclick="closeQuestionModal()" class="px-4 py-2 text-slate-600 font-semibold">Hủy</button>
                 <button onclick="saveQuestion()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl font-bold shadow">Lưu câu hỏi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NHẬP CÂU HỎI TỰ ĐỘNG (CHỈ ADMIN) -->
+    <div id="import-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[92vh] overflow-y-auto p-6 space-y-4">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800">Nhập câu hỏi tự động</h3>
+                    <p class="text-xs text-slate-500 mt-1">Dán dữ liệu của bạn vào ô bên dưới (từ Word, Excel, Google Sheets...). Mỗi dòng là một câu hỏi theo mẫu:
+                        <b class="text-slate-700">Phần thi · Nguồn · Nội dung câu hỏi · Đáp án</b></p>
+                </div>
+                <button onclick="closeImportModal()" class="text-2xl leading-none text-slate-400 hover:text-slate-700 px-2">✕</button>
+            </div>
+
+            <textarea id="import-text" rows="7" oninput="updateImportPreview(event)" class="w-full p-3 border-2 border-slate-700 rounded-xl text-sm font-mono focus:outline-none"
+                placeholder="Khởi động | VTV3: O26 - T3 Q4 | Nguyên tố hóa học nào có số hiệu nguyên tử là 14? | Silic/ Si/ Silicon&#10;Về đích 20 | VTV3: O17 - T1 Th1 Q1 | Nhà thiên văn nào đưa ra chân lí Trái Đất quay quanh Mặt Trời? | Copernicus&#10;Về đích 30 | NVT's Quiztopia | Câu hỏi 30 điểm... | Đáp án"></textarea>
+
+            <div class="grid md:grid-cols-2 gap-5 text-sm" onchange="updateImportPreview(event)" oninput="updateImportPreview(event)">
+                <div class="space-y-2">
+                    <p class="font-bold text-slate-800">Giữa các trường (Phần thi / Nguồn / Câu hỏi / Đáp án)</p>
+                    <label class="flex items-center gap-2"><input type="radio" name="imp-field" value="auto" checked> Tự động (Tab, dấu | hoặc khoảng trắng)</label>
+                    <label class="flex items-center gap-2"><input type="radio" name="imp-field" value="tab"> Tab (dán từ Excel / Google Sheets)</label>
+                    <label class="flex items-center gap-2"><input type="radio" name="imp-field" value="pipe"> Dấu gạch đứng |</label>
+                    <label class="flex items-center gap-2"><input type="radio" name="imp-field" value="custom"> <input id="imp-field-custom" placeholder="Tùy chọn, VD: ;;" class="px-3 py-1.5 border rounded-lg bg-slate-50 w-44"></label>
+                </div>
+                <div class="space-y-2">
+                    <p class="font-bold text-slate-800">Giữa các câu hỏi</p>
+                    <label class="flex items-center gap-2"><input type="radio" name="imp-card" value="newline" checked> Dòng mới</label>
+                    <label class="flex items-center gap-2"><input type="radio" name="imp-card" value="custom"> <input id="imp-card-custom" placeholder="Tùy chọn, VD: ###" class="px-3 py-1.5 border rounded-lg bg-slate-50 w-44"></label>
+                    <p class="text-[11px] text-slate-500 pt-2 leading-relaxed">
+                        Phần thi viết là: <b>Khởi động</b>, <b>Về đích 20</b> hoặc <b>Về đích 30</b>.<br>
+                        Nhiều đáp án chấp nhận: ngăn cách bằng dấu <b>/</b> có khoảng trắng sau (VD: Silic/ Si/ Silicon).<br>
+                        Nếu bỏ trống Nguồn, chỉ cần để 3 trường: Phần thi | Câu hỏi | Đáp án.
+                    </p>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <p class="font-bold text-slate-800">Xem trước <span id="import-summary" class="font-normal text-slate-500 text-sm">0 câu</span></p>
+                <div class="border rounded-xl max-h-64 overflow-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead class="bg-slate-100 text-slate-700 font-bold sticky top-0"><tr><th class="p-2">#</th><th class="p-2">Phần thi</th><th class="p-2">Nguồn</th><th class="p-2">Nội dung câu hỏi</th><th class="p-2">Đáp án</th><th class="p-2">Kết quả</th></tr></thead>
+                        <tbody id="import-preview"><tr><td colspan="6" class="p-4 text-center text-slate-400">Chưa có dữ liệu để xem trước.</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="flex justify-end items-center gap-3 pt-2 border-t">
+                <button onclick="closeImportModal()" class="px-5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold">Hủy nhập</button>
+                <button id="import-confirm" onclick="confirmImport()" disabled class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow disabled:opacity-40 disabled:cursor-not-allowed">Nhập</button>
             </div>
         </div>
     </div>
@@ -395,13 +471,11 @@
         import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut }
             from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc,
-                 query, orderBy, limit, serverTimestamp, arrayUnion, arrayRemove, writeBatch }
+                 query, where, serverTimestamp, arrayUnion, arrayRemove, writeBatch }
             from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         /* =====================================================================
-           1) DÁN CẤU HÌNH FIREBASE CỦA BẠN VÀO ĐÂY
-              (Firebase Console → Project settings → Your apps → Web app → Config)
-           2) ĐỔI EMAIL ADMIN (phải trùng với email trong firestore.rules)
+           CẤU HÌNH FIREBASE + EMAIL ADMIN
            ===================================================================== */
         const firebaseConfig = {
             apiKey: "AIzaSyCjK0DVj_-wNJA2ZmBKD8kY8-oEk7JdAUY",
@@ -413,6 +487,11 @@
         };
         const ADMIN_EMAILS = ["dunganhle209@gmail.com"];
         /* ===================================================================== */
+
+        // Thời gian trong phần thi Về đích (mili giây)
+        const VD_LUCK_MS = 5000;       // hiện "Chúc bạn may mắn..." trước mỗi câu
+        const VD_READ_DELAY_MS = 3000; // sau khi câu hỏi hiện ra, 3s sau mới bắt đầu tính giờ
+        const BANK_PAGE_SIZE = 20;
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -432,21 +511,102 @@
             { id: 'seed4', type: 'vedich30', source: "NVT's Quiztopia", content: 'August Kekulé với giấc mơ về "một con rắn đang nắm lấy đuôi của chính nó" đã giúp ông phát hiện ra cấu trúc của hợp chất hóa học nào?', answer: 'benzen' }
         ];
 
+        // <PURE> — các hàm thuần (không đụng DOM/Firebase), được kiểm thử riêng
+        const normalizeStr = (str) => String(str || '').toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, 'd').replace(/\s+/g, '').trim();
+
+        // Đáp án mở rộng: chỉ tách tại dấu "/" có khoảng trắng liền sau (hoặc liền trước).
+        // "Silic/ Si/ Silicon" => 3 đáp án; "km/h", "1/2", "Silic/Si" => giữ nguyên là 1 đáp án.
+        function splitAnswers(ans) {
+            return String(ans || '').split(/(?<=\s)\/|\/(?=\s)/).map(normalizeStr).filter(Boolean);
+        }
+        function checkAnswer(userAns, ans) {
+            const u = normalizeStr(userAns);
+            if (!u) return false;
+            return splitAnswers(ans).includes(u);
+        }
+
+        // Khóa tuần: ngày của thứ Hai (GMT+7) đang chứa thời điểm ms. Sang 0:00 thứ Hai GMT+7 khóa đổi => bảng xếp hạng mới.
+        function weekKeyGMT7(ms = Date.now()) {
+            const d = new Date(ms + 7 * 3600 * 1000);
+            const dow = (d.getUTCDay() + 6) % 7; // Thứ Hai = 0
+            return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - dow)).toISOString().slice(0, 10);
+        }
+
+        const pageCount = (n, size = 20) => Math.max(1, Math.ceil(n / size));
+
+        function parseTypeText(s) {
+            const n = normalizeStr(s);
+            if (/^(khoidong|kd)$/.test(n)) return 'khoidong';
+            const m = n.match(/^(vedich|vd)\D*(20|30)/);
+            return m ? 'vedich' + m[2] : null;
+        }
+
+        // Dòng không có ký tự phân cách: "Khởi động VTV3: O26 - T3 Q4 Câu hỏi...? Đáp án"
+        function parseSpaceLine(line) {
+            let rest = line.trim(), type = null, m;
+            if ((m = rest.match(/^(khởi\s*động|khoi\s*dong|kđ|kd)(?=\s|$)/i))) { type = 'khoidong'; rest = rest.slice(m[0].length).trim(); }
+            else if ((m = rest.match(/^(về\s*đích|ve\s*dich|vđ|vd)\s*\(?\s*(20|30)(?:\s*đ(?:iểm)?)?\)?(?=\s|$)/i))) { type = 'vedich' + m[2]; rest = rest.slice(m[0].length).trim(); }
+            if (!type) return { err: 'Không nhận ra phần thi' };
+            const q = rest.lastIndexOf('?');
+            if (q < 0 || q === rest.length - 1) return { err: 'Không tách được đáp án — hãy dùng dấu | hoặc Tab' };
+            const answer = rest.slice(q + 1).trim();
+            const before = rest.slice(0, q + 1).trim();
+            let source = '', content = before;
+            const sm = before.match(/^(.*?\bQ\d+)\s+(.+)$/);
+            if (sm && sm[1].length <= 40) { source = sm[1]; content = sm[2]; }
+            return { type, source, content, answer };
+        }
+
+        function parseImport(text, o = {}) {
+            const lines = (o.cardMode === 'custom' && o.customCard ? String(text).split(o.customCard) : String(text).split(/\r?\n/))
+                .map(s => s.trim()).filter(Boolean);
+            return lines.map(line => {
+                let sep = null;
+                if (o.fieldMode === 'tab') sep = '\t';
+                else if (o.fieldMode === 'pipe') sep = '|';
+                else if (o.fieldMode === 'custom') sep = o.customField || null;
+                else sep = line.includes('\t') ? '\t' : (line.includes('|') ? '|' : null);
+
+                let r;
+                if (sep) {
+                    const p = line.split(sep).map(s => s.trim());
+                    if (p.length < 3) r = { err: 'Thiếu trường (cần: Phần thi, Nguồn, Câu hỏi, Đáp án)' };
+                    else {
+                        const type = parseTypeText(p[0]);
+                        if (!type) r = { err: 'Không nhận ra phần thi "' + p[0] + '"' };
+                        else if (p.length === 3) r = { type, source: '', content: p[1], answer: p[2] };
+                        else r = { type, source: p[1], answer: p[p.length - 1], content: p.slice(2, -1).join(sep).trim() };
+                    }
+                } else r = parseSpaceLine(line);
+
+                if (!r.err && (!r.content || !r.answer)) r = { err: 'Thiếu nội dung câu hỏi hoặc đáp án' };
+                return r.err ? { ok: false, err: r.err, raw: line } : { ok: true, type: r.type, source: r.source, content: r.content, answer: r.answer };
+            });
+        }
+        // </PURE>
+
         // ---------- Tiện ích ----------
         const $ = (id) => document.getElementById(id);
         const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-        const normalizeStr = (str) => String(str || '').toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, 'd').replace(/\s+/g, '').trim();
         const shuffle = (arr) => { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
         const typeLabel = { khoidong: 'Khởi động', vedich20: 'Về đích 20đ', vedich30: 'Về đích 30đ' };
+        const qOrd = (q) => q.ord ?? q.createdAt?.toMillis?.() ?? 0;
+        const tsMs = (t) => t?.toMillis?.() ?? 0;
 
         function toast(msg) {
             const t = $('toast'); t.innerText = msg; t.classList.remove('hidden');
-            clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.add('hidden'), 3000);
+            clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.add('hidden'), 3200);
         }
 
         function labelOf(p) {
             const extra = [p.className, p.school].filter(Boolean).join(', ');
             return extra ? `${p.name} (${extra})` : p.name;
+        }
+
+        const TAB_BASE = 'flex-1 md:flex-none text-left px-4 py-3 rounded-xl font-bold text-sm transition ';
+        function styleTabs(ids, active) {
+            for (const [key, id] of Object.entries(ids))
+                $(id).className = TAB_BASE + (key === active ? 'bg-blue-600 text-white shadow' : 'bg-slate-100 text-slate-700 hover:bg-slate-200');
         }
 
         // ---------- Đăng nhập ----------
@@ -462,10 +622,15 @@
         };
         window.logout = async function () { cancelGames(); await signOut(auth); };
 
+        function applyAdminUI() {
+            $('nav-admin').classList.toggle('hidden', !isAdmin);
+            $('nav-admin-m').classList.toggle('hidden', !isAdmin);
+        }
+
         onAuthStateChanged(auth, async (user) => {
             authUser = user;
             if (!user) {
-                profile = null; isAdmin = false;
+                profile = null; isAdmin = false; applyAdminUI();
                 $('login-screen').classList.remove('hidden');
                 return;
             }
@@ -474,7 +639,7 @@
                 await ensureProfile(user);
                 await loadQuestions();
                 $('login-screen').classList.add('hidden');
-                updateUserUI(); updateSavedCount();
+                applyAdminUI(); updateUserUI(); updateSavedCount();
                 showPage('home');
             } catch (e) {
                 console.error(e);
@@ -528,6 +693,7 @@
         // ---------- Điều hướng ----------
         const GAME_PAGES = ['khoidong', 'vedich-playing', 'kd-result', 'vd-result'];
         window.showPage = function (id) {
+            if (id === 'admin' && !isAdmin) { toast('Chỉ quản trị viên mới truy cập được ngân hàng câu hỏi.'); return; }
             if (!GAME_PAGES.includes(id)) cancelGames();
             document.querySelectorAll('.page-section').forEach(s => s.classList.add('hidden'));
             const el = $('page-' + id);
@@ -550,9 +716,11 @@
             $('pf-admin-badge').classList.toggle('hidden', !isAdmin);
             $('pf-stat-saved').innerText = savedIds.length;
             try {
+                const wk = weekKeyGMT7();
                 const [kd, vd] = await Promise.all([getDoc(doc(db, 'lb_kd', authUser.uid)), getDoc(doc(db, 'lb_vd', authUser.uid))]);
-                $('pf-stat-kd').innerText = (kd.exists() ? kd.data().score : 0) + 'đ';
-                $('pf-stat-vd').innerText = (vd.exists() ? vd.data().score : 0) + 'đ';
+                const val = (s) => (s.exists() && s.data().weekKey === wk) ? s.data().score : 0;
+                $('pf-stat-kd').innerText = val(kd) + 'đ';
+                $('pf-stat-vd').innerText = val(vd) + 'đ';
             } catch (e) { console.warn(e); }
         }
 
@@ -563,7 +731,6 @@
             reader.onload = (e) => {
                 const img = new Image();
                 img.onload = async () => {
-                    // Thu nhỏ ảnh về 128x128 để lưu gọn trong Firestore
                     const c = document.createElement('canvas'); c.width = c.height = 128;
                     const ctx = c.getContext('2d');
                     const s = Math.min(img.width, img.height);
@@ -587,7 +754,6 @@
             try {
                 await updateDoc(doc(db, 'users', authUser.uid), data);
                 Object.assign(profile, data);
-                // Cập nhật tên hiển thị trên bảng xếp hạng nếu đã có điểm
                 for (const col of ['lb_kd', 'lb_vd']) {
                     const r = doc(db, col, authUser.uid);
                     if ((await getDoc(r)).exists()) await updateDoc(r, { label: labelOf(profile) });
@@ -597,32 +763,56 @@
             } catch (e) { toast('Lỗi: ' + (e.code || e.message)); }
         };
 
-        // ---------- Ngân hàng câu hỏi ----------
+        // ---------- Ngân hàng câu hỏi (admin) ----------
         async function loadQuestions() {
             const snap = await getDocs(collection(db, 'questions'));
             questionBank = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         }
 
+        let bankTab = 'kd', bankPage = 1;
+        const bankList = (tab = bankTab) => questionBank
+            .filter(q => tab === 'kd' ? q.type === 'khoidong' : (q.type === 'vedich20' || q.type === 'vedich30'))
+            .sort((a, b) => qOrd(a) - qOrd(b));
+
+        window.setBankTab = (t) => { bankTab = t; bankPage = 1; renderAdminTable(); };
+        window.bankGo = (d) => { bankPage += d; renderAdminTable(); };
+        function jumpToLast(type) {
+            bankTab = type === 'khoidong' ? 'kd' : 'vd';
+            bankPage = pageCount(bankList().length, BANK_PAGE_SIZE);
+        }
+
         function renderAdminTable() {
-            document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', !isAdmin));
-            $('admin-actions').classList.toggle('hidden', !isAdmin);
-            $('btn-seed').classList.toggle('hidden', !(isAdmin && questionBank.length === 0));
-            $('bank-title').innerText = isAdmin ? '⚙️ Quản lý Ngân hàng Câu hỏi' : '📖 Ngân hàng câu hỏi';
-            $('bank-subtitle').innerText = isAdmin ? 'Bạn là quản trị viên: có thể thêm, sửa, xóa câu hỏi.' : 'Bạn chỉ có quyền xem.';
+            if (!isAdmin) return;
+            $('btn-seed').classList.toggle('hidden', questionBank.length !== 0);
+            styleTabs({ kd: 'bank-tab-kd', vd: 'bank-tab-vd' }, bankTab);
+            $('bank-count-kd').innerText = `(${bankList('kd').length})`;
+            $('bank-count-vd').innerText = `(${bankList('vd').length})`;
+
+            const list = bankList();
+            const pages = pageCount(list.length, BANK_PAGE_SIZE);
+            bankPage = Math.max(1, Math.min(bankPage, pages));
+            const start = (bankPage - 1) * BANK_PAGE_SIZE;
+            const slice = list.slice(start, start + BANK_PAGE_SIZE);
+
+            $('bank-page-indicator').innerText = `${bankPage}/${pages}`;
+            $('bank-prev').disabled = bankPage <= 1;
+            $('bank-next').disabled = bankPage >= pages;
+
             const tbody = $('admin-question-table');
-            if (questionBank.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-500">Chưa có câu hỏi nào.</td></tr>`;
+            if (slice.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500">Chưa có câu hỏi nào trong phần này.</td></tr>`;
                 return;
             }
-            tbody.innerHTML = questionBank.map(q => `
+            tbody.innerHTML = slice.map((q, i) => `
                 <tr class="border-b hover:bg-slate-50">
+                    <td class="p-3 text-slate-400 font-semibold">${start + i + 1}</td>
                     <td class="p-3 font-semibold text-blue-600 text-xs whitespace-nowrap">${esc(typeLabel[q.type] || q.type)}</td>
                     <td class="p-3">${esc(q.content)}<div class="text-[11px] text-slate-400 mt-1">${esc(q.source)}</div></td>
                     <td class="p-3 font-bold text-green-700">${esc(q.answer)}</td>
-                    ${isAdmin ? `<td class="p-3 text-center space-x-3 whitespace-nowrap">
+                    <td class="p-3 text-center space-x-3 whitespace-nowrap">
                         <button onclick="openQuestionModal('${esc(q.id)}')" class="text-blue-600 font-semibold hover:underline">Sửa</button>
                         <button onclick="deleteQuestion('${esc(q.id)}')" class="text-red-500 font-semibold hover:underline">Xóa</button>
-                    </td>` : ''}
+                    </td>
                 </tr>`).join('');
         }
 
@@ -632,7 +822,7 @@
             const q = id ? questionBank.find(x => x.id === id) : null;
             $('q-modal-title').innerText = q ? 'Sửa câu hỏi' : 'Thêm câu hỏi mới';
             $('edit-q-id').value = q ? q.id : '';
-            $('m-type').value = q ? q.type : 'khoidong';
+            $('m-type').value = q ? q.type : (bankTab === 'kd' ? 'khoidong' : 'vedich20');
             $('m-source').value = q ? q.source : '';
             $('m-content').value = q ? q.content : '';
             $('m-answer').value = q ? q.answer : '';
@@ -651,8 +841,9 @@
             if (!data.content || !data.answer) { toast('Vui lòng điền đủ nội dung và đáp án!'); return; }
             try {
                 if (editId) await updateDoc(doc(db, 'questions', editId), data);
-                else await addDoc(collection(db, 'questions'), { ...data, createdAt: serverTimestamp() });
+                else await addDoc(collection(db, 'questions'), { ...data, ord: Date.now(), createdAt: serverTimestamp() });
                 await loadQuestions();
+                if (!editId) jumpToLast(data.type);
                 closeQuestionModal(); renderAdminTable();
                 toast('Đã lưu câu hỏi lên máy chủ!');
             } catch (e) { toast('Lỗi lưu: ' + (e.code || e.message)); }
@@ -671,11 +862,69 @@
             if (!isAdmin) return;
             try {
                 const batch = writeBatch(db);
-                SEED_QUESTIONS.forEach(({ id, ...d }) => batch.set(doc(db, 'questions', id), { ...d, createdAt: serverTimestamp() }));
+                const base = Date.now();
+                SEED_QUESTIONS.forEach(({ id, ...d }, i) => batch.set(doc(db, 'questions', id), { ...d, ord: base + i, createdAt: serverTimestamp() }));
                 await batch.commit();
                 await loadQuestions(); renderAdminTable();
                 toast('Đã nạp câu hỏi mẫu.');
             } catch (e) { toast('Lỗi: ' + (e.code || e.message)); }
+        };
+
+        // ---------- Nhập câu hỏi tự động ----------
+        let importRows = [];
+        const radioVal = (name) => document.querySelector(`input[name=${name}]:checked`).value;
+
+        window.openImportModal = function () {
+            if (!isAdmin) return;
+            $('import-text').value = '';
+            updateImportPreview();
+            $('import-modal').classList.remove('hidden'); $('import-modal').classList.add('flex');
+        };
+        window.closeImportModal = function () { $('import-modal').classList.add('hidden'); $('import-modal').classList.remove('flex'); };
+
+        window.updateImportPreview = function (ev) {
+            // Gõ vào ô "Tùy chọn" thì tự chọn radio tương ứng
+            if (ev?.target?.id === 'imp-field-custom') document.querySelector('input[name=imp-field][value=custom]').checked = true;
+            if (ev?.target?.id === 'imp-card-custom') document.querySelector('input[name=imp-card][value=custom]').checked = true;
+
+            importRows = parseImport($('import-text').value, {
+                fieldMode: radioVal('imp-field'), customField: $('imp-field-custom').value,
+                cardMode: radioVal('imp-card') === 'custom' ? 'custom' : 'newline', customCard: $('imp-card-custom').value
+            });
+            const ok = importRows.filter(r => r.ok).length, bad = importRows.length - ok;
+            $('import-summary').innerText = `${ok} câu hợp lệ` + (bad ? `, ${bad} dòng lỗi (sẽ bị bỏ qua)` : '');
+            $('import-confirm').disabled = ok === 0;
+            $('import-confirm').innerText = ok ? `Nhập ${ok} câu hỏi` : 'Nhập';
+            $('import-preview').innerHTML = importRows.length === 0
+                ? '<tr><td colspan="6" class="p-4 text-center text-slate-400">Chưa có dữ liệu để xem trước.</td></tr>'
+                : importRows.slice(0, 200).map((r, i) => r.ok
+                    ? `<tr class="border-b"><td class="p-2 text-slate-400">${i + 1}</td><td class="p-2 font-semibold text-blue-600 whitespace-nowrap">${esc(typeLabel[r.type])}</td><td class="p-2">${esc(r.source || 'Tự soạn')}</td><td class="p-2">${esc(r.content)}</td><td class="p-2 font-bold text-green-700">${esc(r.answer)}</td><td class="p-2 text-green-600 font-bold">✔</td></tr>`
+                    : `<tr class="border-b bg-red-50"><td class="p-2 text-slate-400">${i + 1}</td><td class="p-2 text-slate-600" colspan="4">${esc(r.raw)}</td><td class="p-2 text-red-600 font-semibold">✖ ${esc(r.err)}</td></tr>`).join('');
+        };
+
+        window.confirmImport = async function () {
+            if (!isAdmin) return;
+            const rows = importRows.filter(r => r.ok);
+            if (rows.length === 0) return;
+            $('import-confirm').disabled = true; $('import-confirm').innerText = 'Đang nhập...';
+            try {
+                const base = Date.now();
+                for (let i = 0; i < rows.length; i += 400) {
+                    const batch = writeBatch(db);
+                    rows.slice(i, i + 400).forEach((r, j) => batch.set(doc(collection(db, 'questions')), {
+                        type: r.type, source: r.source || 'Tự soạn', content: r.content, answer: r.answer,
+                        ord: base + i + j, createdAt: serverTimestamp()
+                    }));
+                    await batch.commit();
+                }
+                await loadQuestions();
+                jumpToLast(rows[rows.length - 1].type);
+                closeImportModal(); renderAdminTable();
+                toast(`Đã nhập ${rows.length} câu hỏi.`);
+            } catch (e) {
+                toast('Lỗi nhập: ' + (e.code || e.message));
+                updateImportPreview();
+            }
         };
 
         // ---------- Lưu câu hỏi / báo lỗi ----------
@@ -732,41 +981,53 @@
         window.nextSavedCard = () => { currentSavedIndex++; renderSavedQuestions(); };
         window.removeSaved = async (id) => { await toggleSaveQuestion(id, null); renderSavedQuestions(); };
 
-        // ---------- Bảng xếp hạng ----------
+        // ---------- Bảng xếp hạng (reset ngầm 0:00 thứ Hai hằng tuần, GMT+7) ----------
         async function submitScore(type, score) {
             const col = type === 'kd' ? 'lb_kd' : 'lb_vd';
             try {
+                const wk = weekKeyGMT7();
                 const ref = doc(db, col, authUser.uid);
                 const snap = await getDoc(ref);
-                if (!snap.exists() || score > snap.data().score) {
-                    await setDoc(ref, { label: labelOf(profile), score, updatedAt: serverTimestamp() });
+                const cur = snap.exists() ? snap.data() : null;
+                // Tuần mới => ghi đè dù thấp hơn; cùng tuần => chỉ ghi khi cao hơn
+                if (!cur || cur.weekKey !== wk || score > cur.score) {
+                    await setDoc(ref, { label: labelOf(profile), score, weekKey: wk, updatedAt: serverTimestamp() });
                 }
             } catch (e) { console.warn('submitScore', e); }
         }
 
+        let lbTab = 'kd', lbReq = 0;
+        window.setLbTab = (t) => { lbTab = t; renderLeaderboards(); };
+
         async function renderLeaderboards() {
-            const draw = async (col, tbodyId, color) => {
-                const tb = $(tbodyId);
-                tb.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-slate-400">Đang tải...</td></tr>';
-                try {
-                    const snap = await getDocs(query(collection(db, col), orderBy('score', 'desc'), limit(50)));
-                    if (snap.empty) { tb.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-slate-400">Chưa có ai trên bảng xếp hạng.</td></tr>'; return; }
-                    tb.innerHTML = snap.docs.map((d, i) => {
-                        const x = d.data();
-                        const me = d.id === authUser.uid ? 'bg-blue-50' : '';
-                        return `<tr class="border-b ${me}"><td class="p-3 font-bold ${color}">#${i + 1}</td><td class="p-3 font-medium">${esc(x.label)}</td><td class="p-3 text-right font-black">${esc(x.score)} đ</td></tr>`;
-                    }).join('');
-                } catch (e) { tb.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-red-500">Không tải được bảng xếp hạng.</td></tr>'; }
-            };
-            await Promise.all([draw('lb_kd', 'lb-kd-tbody', 'text-amber-600'), draw('lb_vd', 'lb-vd-tbody', 'text-indigo-600')]);
+            const req = ++lbReq;
+            const isKd = lbTab === 'kd';
+            styleTabs({ kd: 'lb-tab-kd', vd: 'lb-tab-vd' }, lbTab);
+            $('lb-title').className = 'font-bold text-sm ' + (isKd ? 'text-amber-700' : 'text-indigo-700');
+            $('lb-title').innerText = isKd ? '🚀 Phần thi Khởi động' : '🎯 Phần thi Về đích';
+            const tb = $('lb-tbody');
+            tb.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-slate-400">Đang tải...</td></tr>';
+            try {
+                const snap = await getDocs(query(collection(db, isKd ? 'lb_kd' : 'lb_vd'), where('weekKey', '==', weekKeyGMT7())));
+                if (req !== lbReq) return; // người dùng đã chuyển tab
+                const rows = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+                    .sort((a, b) => b.score - a.score || tsMs(a.updatedAt) - tsMs(b.updatedAt)).slice(0, 50);
+                if (rows.length === 0) { tb.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-slate-400">Chưa có ai trên bảng xếp hạng.</td></tr>'; return; }
+                const color = isKd ? 'text-amber-600' : 'text-indigo-600';
+                tb.innerHTML = rows.map((x, i) => `<tr class="border-b ${x.id === authUser.uid ? 'bg-blue-50' : ''}"><td class="p-3 font-bold ${color}">#${i + 1}</td><td class="p-3 font-medium">${esc(x.label)}</td><td class="p-3 text-right font-black">${esc(x.score)} đ</td></tr>`).join('');
+            } catch (e) {
+                if (req === lbReq) tb.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-red-500">Không tải được bảng xếp hạng.</td></tr>';
+            }
         }
 
         // ---------- Thi: KHỞI ĐỘNG ----------
         let kdTimer = null, kdQuestions = [], kdCurrentIndex = 0, kdScore = 0, kdUserAnswers = [], kdRunning = false;
+        let vdTimer = null, vdLuckTimer = null, vdDelayTimer = null;
 
         function cancelGames() {
             clearTimeout(kdTimer); kdRunning = false;
             clearInterval(vdTimer); vdTimer = null;
+            clearTimeout(vdLuckTimer); clearTimeout(vdDelayTimer);
         }
 
         window.startKhoidong = function () {
@@ -795,7 +1056,7 @@
             if (!kdRunning) return;
             const ans = $('kd-answer-input').value;
             const q = kdQuestions[kdCurrentIndex];
-            const ok = normalizeStr(ans) === normalizeStr(q.answer);
+            const ok = checkAnswer(ans, q.answer);
             if (ok) kdScore += 10;
             $('kd-score').innerText = kdScore;
             kdUserAnswers.push({ question: q, userAns: ans, correct: ok });
@@ -831,7 +1092,8 @@
         }
 
         // ---------- Thi: VỀ ĐÍCH ----------
-        let vdPkgList = [], vdCurrentIndex = 0, vdScore = 0, vdUserAnswers = [], vdTimer = null, vdTimeRemaining = 15,
+        // Luồng mỗi câu: (hỏi Ngôi sao nếu chưa dùng) -> 5s "Chúc bạn may mắn" -> hiện câu hỏi -> 3s sau mới tính giờ -> hết giờ chấm
+        let vdPkgList = [], vdCurrentIndex = 0, vdScore = 0, vdUserAnswers = [], vdTimeRemaining = 15,
             useStarHope = false, usedStarThisGame = false, currentRecordedAns = '';
 
         window.openVedichSetup = function () { cancelGames(); showPage('vedich-setup'); };
@@ -845,40 +1107,73 @@
             const idx = { 20: 0, 30: 0 };
             vdPkgList = picks.map(p => ({ points: p, question: pools[p][idx[p]++ % pools[p].length] }));
             cancelGames();
-            vdCurrentIndex = 0; vdScore = 0; vdUserAnswers = []; usedStarThisGame = false;
+            vdCurrentIndex = 0; vdScore = 0; vdUserAnswers = []; usedStarThisGame = false; useStarHope = false;
             showPage('vedich-playing');
             loadVdQuestion();
         };
+
+        function setVdStarBadge(on) {
+            const el = $('vd-star-badge');
+            el.classList.toggle('hidden', !on);
+            el.classList.toggle('star-rise', on); // hiện lại từ display:none sẽ chạy lại hiệu ứng bay từ dưới lên
+        }
+
+        function setVdMode(mode) { // 'luck' | 'question'
+            const luck = mode === 'luck';
+            $('vd-quiz-content').classList.remove('hidden');
+            $('vd-timer-wrap').classList.toggle('hidden', luck);
+            $('vd-answer-row').classList.toggle('hidden', luck);
+            $('vd-recorded-box').classList.toggle('hidden', luck);
+            $('vd-q-source').classList.toggle('hidden', luck);
+            $('vd-q-box').classList.toggle('py-12', luck);
+            $('vd-question-text').classList.toggle('text-center', luck);
+            $('vd-question-text').classList.toggle('text-indigo-700', luck);
+            $('vd-question-text').classList.toggle('luck-text', luck);
+        }
 
         function loadVdQuestion() {
             if (vdCurrentIndex >= 3) { finishVedich(); return; }
             const item = vdPkgList[vdCurrentIndex];
             $('vd-question-badge').innerText = `CÂU ${vdCurrentIndex + 1} / 3 (${item.points} ĐIỂM)`;
             $('vd-current-score').innerText = vdScore;
+            setVdStarBadge(false);
             if (!usedStarThisGame) {
+                useStarHope = false;
                 $('vd-star-prompt').classList.remove('hidden'); $('vd-quiz-content').classList.add('hidden');
             } else {
                 useStarHope = false;
-                $('vd-star-prompt').classList.add('hidden'); $('vd-quiz-content').classList.remove('hidden');
-                setupVdQuestionDisplay();
+                $('vd-star-prompt').classList.add('hidden');
+                startLuckPhase();
             }
         }
 
         window.answerStar = function (chosen) {
             useStarHope = chosen;
-            if (chosen) usedStarThisGame = true;
-            $('vd-star-prompt').classList.add('hidden'); $('vd-quiz-content').classList.remove('hidden');
-            setupVdQuestionDisplay();
+            if (chosen) usedStarThisGame = true; // chỉ được chọn 1 lần trong 3 câu
+            $('vd-star-prompt').classList.add('hidden');
+            startLuckPhase();
         };
+
+        function startLuckPhase() {
+            setVdMode('luck');
+            $('vd-question-text').innerText = 'Chúc bạn may mắn với câu hỏi của mình!';
+            clearTimeout(vdLuckTimer);
+            vdLuckTimer = setTimeout(setupVdQuestionDisplay, VD_LUCK_MS);
+        }
 
         function setupVdQuestionDisplay() {
             const item = vdPkgList[vdCurrentIndex];
+            setVdMode('question');
             $('vd-q-source').innerText = 'Nguồn: ' + item.question.source;
             $('vd-question-text').innerText = item.question.content;
             $('vd-answer-input').value = ''; currentRecordedAns = '';
             $('vd-recorded-display').innerText = 'Đáp án ghi nhận: (Chưa nhập)';
+            const bar = $('vd-timer-bar');
+            bar.style.transition = 'none'; bar.style.width = '100%';
+            if (useStarHope) setVdStarBadge(true); // ngôi sao hiện lên khi câu hỏi hiện ra và ở lại đến hết câu
             $('vd-answer-input').focus();
-            startVdTimer();
+            clearTimeout(vdDelayTimer);
+            vdDelayTimer = setTimeout(startVdTimer, VD_READ_DELAY_MS); // 3s sau khi hiện câu hỏi mới bắt đầu tính giờ
         }
 
         window.updateRecordedAnswer = function (val) {
@@ -889,9 +1184,9 @@
         function startVdTimer() {
             const item = vdPkgList[vdCurrentIndex];
             vdTimeRemaining = item.points === 20 ? 15 : 20;
+            const secs = vdTimeRemaining;
             const bar = $('vd-timer-bar');
             bar.style.transition = 'none'; bar.style.width = '100%';
-            const secs = vdTimeRemaining;
             setTimeout(() => { bar.style.transition = `width ${secs}s linear`; bar.style.width = '0%'; }, 50);
             clearInterval(vdTimer);
             vdTimer = setInterval(() => {
@@ -907,7 +1202,7 @@
 
         function processVdAnswerSubmission() {
             const item = vdPkgList[vdCurrentIndex];
-            const ok = normalizeStr(currentRecordedAns) === normalizeStr(item.question.answer);
+            const ok = checkAnswer(currentRecordedAns, item.question.answer);
             const earned = ok ? (useStarHope ? item.points * 2 : item.points) : (useStarHope ? -item.points : 0);
             vdScore += earned;
             vdUserAnswers.push({ points: item.points, question: item.question, userAns: currentRecordedAns, correct: ok, star: useStarHope });
@@ -917,6 +1212,7 @@
         }
 
         function finishVedich() {
+            setVdStarBadge(false);
             showPage('vd-result');
             $('vd-final-score').innerText = vdScore;
             $('vd-result-table-body').innerHTML = vdUserAnswers.map((it, i) => `
