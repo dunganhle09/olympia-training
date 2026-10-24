@@ -22,14 +22,14 @@
 </head>
 <body class="bg-slate-50 min-h-screen flex flex-col">
 
-    <!-- KHAI BÁO CÁC FILE ÂM THANH -->
-    <audio id="snd-kd-bg" src="KĐ_60s_left_O11.mp3.mp3" preload="auto"></audio>
-    <audio id="snd-kd-correct" src="KĐ_đúng_left_O10.mp3.mp3" preload="auto"></audio>
-    <audio id="snd-kd-wrong" src="KĐ_sai_O7.mp3.mp3" preload="auto"></audio>
-    <audio id="snd-vd-20" src="VĐ_20s_right_O22.mp3.mp3" preload="auto"></audio>
-    <audio id="snd-vd-30" src="VĐ_30s_O22.mp3.mp3" preload="auto"></audio>
-    <audio id="snd-vd-correct" src="VĐ_đúng_left_O7.mp3.mp3" preload="auto"></audio>
-    <audio id="snd-vd-wrong" src="VĐ_sai_right_O7.mp3" preload="auto"></audio>
+    <!-- KHAI BÁO CÁC FILE ÂM THANH ĐÃ KHỚP CHUẨN TRÊN GITHUB -->
+    <audio id="snd-kd-bg" src="./kd_60s.mp3" preload="auto"></audio>
+    <audio id="snd-kd-correct" src="./kd_dung.mp3" preload="auto"></audio>
+    <audio id="snd-kd-wrong" src="./kd_sai.mp3" preload="auto"></audio>
+    <audio id="snd-vd-20" src="./vd_20s.mp3" preload="auto"></audio>
+    <audio id="snd-vd-30" src="./vd_30s.mp3" preload="auto"></audio>
+    <audio id="snd-vd-correct" src="./vd_dung.mp3" preload="auto"></audio>
+    <audio id="snd-vd-wrong" src="./vd_sai.mp3" preload="auto"></audio>
 
     <!-- MÀN HÌNH ĐĂNG NHẬP -->
     <div id="login-screen" class="fixed inset-0 z-[100] gradient-bg flex items-center justify-center p-4">
@@ -307,7 +307,7 @@
             </div>
         </div>
 
-        <!-- 5. BẢNG XẾP HẠNG (cột trái chọn phần thi) -->
+        <!-- 5. BẢNG XẾP HẠNG -->
         <div id="page-leaderboard" class="hidden max-w-4xl mx-auto page-section">
             <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 space-y-5">
                 <h3 class="text-xl font-bold text-slate-800 border-b pb-3">🏆 Bảng Xếp Hạng Thành Tích</h3>
@@ -410,8 +410,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">Đáp án chuẩn:</label>
-                    <input type="text" id="m-answer" placeholder="VD: Silic/ Si/ Silicon (nhiều đáp án cách nhau bằng dấu / + khoảng trắng)" class="w-full p-2.5 border rounded-xl">
-                    <p class="text-[11px] text-slate-400 mt-1">Nhiều đáp án được chấp nhận thì cách nhau bằng dấu <b>/</b> và <b>có khoảng trắng sau dấu /</b> (VD: <i>Silic/ Si/ Silicon</i>). Dấu / viết liền như <i>km/h</i>, <i>1/2</i> được giữ nguyên là một đáp án. Không phân biệt hoa/thường.</p>
+                    <input type="text" id="m-answer" placeholder="VD: Silic/ Si/ Silicon" class="w-full p-2.5 border rounded-xl">
                 </div>
             </div>
             <div class="flex justify-end space-x-3 pt-2">
@@ -427,48 +426,14 @@
             <div class="flex justify-between items-start">
                 <div>
                     <h3 class="text-xl font-bold text-slate-800">Nhập câu hỏi tự động</h3>
-                    <p class="text-xs text-slate-500 mt-1">Dán dữ liệu của bạn vào ô bên dưới (từ Word, Excel, Google Sheets...). Mỗi dòng là một câu hỏi theo mẫu:
-                        <b class="text-slate-700">Phần thi · Nguồn · Nội dung câu hỏi · Đáp án</b></p>
+                    <p class="text-xs text-slate-500 mt-1">Dán dữ liệu vào ô bên dưới theo mẫu: <b class="text-slate-700">Phần thi · Nguồn · Câu hỏi · Đáp án</b></p>
                 </div>
                 <button onclick="closeImportModal()" class="text-2xl leading-none text-slate-400 hover:text-slate-700 px-2">✕</button>
             </div>
-
-            <textarea id="import-text" rows="7" oninput="updateImportPreview(event)" class="w-full p-3 border-2 border-slate-700 rounded-xl text-sm font-mono focus:outline-none"
-                placeholder="Khởi động | VTV3: O26 - T3 Q4 | Nguyên tố hóa học nào có số hiệu nguyên tử là 14? | Silic/ Si/ Silicon&#10;Về đích 20 | VTV3: O17 - T1 Th1 Q1 | Nhà thiên văn nào đưa ra chân lí Trái Đất quay quanh Mặt Trời? | Copernicus&#10;Về đích 30 | NVT's Quiztopia | Câu hỏi 30 điểm... | Đáp án"></textarea>
-
-            <div class="grid md:grid-cols-2 gap-5 text-sm" onchange="updateImportPreview(event)" oninput="updateImportPreview(event)">
-                <div class="space-y-2">
-                    <p class="font-bold text-slate-800">Giữa các trường (Phần thi / Nguồn / Câu hỏi / Đáp án)</p>
-                    <label class="flex items-center gap-2"><input type="radio" name="imp-field" value="auto" checked> Tự động (Tab, dấu | hoặc khoảng trắng)</label>
-                    <label class="flex items-center gap-2"><input type="radio" name="imp-field" value="tab"> Tab (dán từ Excel / Google Sheets)</label>
-                    <label class="flex items-center gap-2"><input type="radio" name="imp-field" value="pipe"> Dấu gạch đứng |</label>
-                    <label class="flex items-center gap-2"><input type="radio" name="imp-field" value="custom"> <input id="imp-field-custom" placeholder="Tùy chọn, VD: ;;" class="px-3 py-1.5 border rounded-lg bg-slate-50 w-44"></label>
-                </div>
-                <div class="space-y-2">
-                    <p class="font-bold text-slate-800">Giữa các câu hỏi</p>
-                    <label class="flex items-center gap-2"><input type="radio" name="imp-card" value="newline" checked> Dòng mới</label>
-                    <label class="flex items-center gap-2"><input type="radio" name="imp-card" value="custom"> <input id="imp-card-custom" placeholder="Tùy chọn, VD: ###" class="px-3 py-1.5 border rounded-lg bg-slate-50 w-44"></label>
-                    <p class="text-[11px] text-slate-500 pt-2 leading-relaxed">
-                        Phần thi viết là: <b>Khởi động</b>, <b>Về đích 20</b> hoặc <b>Về đích 30</b>.<br>
-                        Nhiều đáp án chấp nhận: ngăn cách bằng dấu <b>/</b> có khoảng trắng sau (VD: Silic/ Si/ Silicon).<br>
-                        Nếu bỏ trống Nguồn, chỉ cần để 3 trường: Phần thi | Câu hỏi | Đáp án.
-                    </p>
-                </div>
-            </div>
-
-            <div class="space-y-2">
-                <p class="font-bold text-slate-800">Xem trước <span id="import-summary" class="font-normal text-slate-500 text-sm">0 câu</span></p>
-                <div class="border rounded-xl max-h-64 overflow-auto">
-                    <table class="w-full text-left border-collapse text-xs">
-                        <thead class="bg-slate-100 text-slate-700 font-bold sticky top-0"><tr><th class="p-2">#</th><th class="p-2">Phần thi</th><th class="p-2">Nguồn</th><th class="p-2">Nội dung câu hỏi</th><th class="p-2">Đáp án</th><th class="p-2">Kết quả</th></tr></thead>
-                        <tbody id="import-preview"><tr><td colspan="6" class="p-4 text-center text-slate-400">Chưa có dữ liệu để xem trước.</td></tr></tbody>
-                    </table>
-                </div>
-            </div>
-
+            <textarea id="import-text" rows="7" oninput="updateImportPreview(event)" class="w-full p-3 border-2 border-slate-700 rounded-xl text-sm font-mono focus:outline-none" placeholder="Khởi động | VTV3 | Câu hỏi? | Đáp án"></textarea>
             <div class="flex justify-end items-center gap-3 pt-2 border-t">
-                <button onclick="closeImportModal()" class="px-5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold">Hủy nhập</button>
-                <button id="import-confirm" onclick="confirmImport()" disabled class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow disabled:opacity-40 disabled:cursor-not-allowed">Nhập</button>
+                <button onclick="closeImportModal()" class="px-5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold">Hủy</button>
+                <button id="import-confirm" onclick="confirmImport()" disabled class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow disabled:opacity-40">Nhập</button>
             </div>
         </div>
     </div>
@@ -483,9 +448,6 @@
                  query, where, serverTimestamp, arrayUnion, arrayRemove, writeBatch }
             from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        /* =====================================================================
-           CẤU HÌNH FIREBASE + EMAIL ADMIN
-           ===================================================================== */
         const firebaseConfig = {
             apiKey: "AIzaSyCjK0DVj_-wNJA2ZmBKD8kY8-oEk7JdAUY",
             authDomain: "t-olympia-training.firebaseapp.com",
@@ -495,18 +457,15 @@
             appId: "1:35871882357:web:d3ed0fd57836cc9267cc3c"
         };
         const ADMIN_EMAILS = ["dunganhle209@gmail.com"];
-        /* ===================================================================== */
 
-        // Thời gian trong phần thi Về đích (mili giây)
-        const VD_LUCK_MS = 5000;       // hiện "Chúc bạn may mắn..." trước mỗi câu
-        const VD_READ_DELAY_MS = 3000; // sau khi câu hỏi hiện ra, 3s sau mới bắt đầu tính giờ
+        const VD_LUCK_MS = 5000;
+        const VD_READ_DELAY_MS = 3000;
         const BANK_PAGE_SIZE = 20;
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // ---------- Trạng thái ----------
         let authUser = null;
         let profile = null;
         let isAdmin = false;
@@ -520,20 +479,29 @@
             { id: 'seed4', type: 'vedich30', source: "NVT's Quiztopia", content: 'August Kekulé với giấc mơ về "một con rắn đang nắm lấy đuôi của chính nó" đã giúp ông phát hiện ra cấu trúc của hợp chất hóa học nào?', answer: 'benzen' }
         ];
 
-        // Quản lý âm thanh
+        // Quản lý âm thanh nâng cao (tự động xử lý chặn autoplay của trình duyệt)
         window.playAudio = function(id) {
             const a = document.getElementById(id);
             if (a) {
                 a.currentTime = 0;
-                a.play().catch(e => console.log('Audio error:', e));
+                const promise = a.play();
+                if (promise !== undefined) {
+                    promise.catch(error => {
+                        console.warn('Autoplay bị chặn, chờ tương tác:', error);
+                        const unlock = () => {
+                            a.play();
+                            document.removeEventListener('click', unlock);
+                            document.removeEventListener('keydown', unlock);
+                        };
+                        document.addEventListener('click', unlock);
+                        document.addEventListener('keydown', unlock);
+                    });
+                }
             }
         };
         window.stopAudio = function(id) {
             const a = document.getElementById(id);
-            if (a) {
-                a.pause();
-                a.currentTime = 0;
-            }
+            if (a) { a.pause(); a.currentTime = 0; }
         };
         window.stopAllGameAudio = function() {
             ['snd-kd-bg', 'snd-kd-correct', 'snd-kd-wrong', 'snd-vd-20', 'snd-vd-30', 'snd-vd-correct', 'snd-vd-wrong'].forEach(stopAudio);
@@ -571,7 +539,7 @@
             else if ((m = rest.match(/^(về\s*đích|ve\s*dich|vđ|vd)\s*\(?\s*(20|30)(?:\s*đ(?:iểm)?)?\)?(?=\s|$)/i))) { type = 'vedich' + m[2]; rest = rest.slice(m[0].length).trim(); }
             if (!type) return { err: 'Không nhận ra phần thi' };
             const q = rest.lastIndexOf('?');
-            if (q < 0 || q === rest.length - 1) return { err: 'Không tách được đáp án — hãy dùng dấu | hoặc Tab' };
+            if (q < 0 || q === rest.length - 1) return { err: 'Không tách được đáp án' };
             const answer = rest.slice(q + 1).trim();
             const before = rest.slice(0, q + 1).trim();
             let source = '', content = before;
@@ -584,30 +552,23 @@
             const lines = (o.cardMode === 'custom' && o.customCard ? String(text).split(o.customCard) : String(text).split(/\r?\n/))
                 .map(s => s.trim()).filter(Boolean);
             return lines.map(line => {
-                let sep = null;
-                if (o.fieldMode === 'tab') sep = '\t';
-                else if (o.fieldMode === 'pipe') sep = '|';
-                else if (o.fieldMode === 'custom') sep = o.customField || null;
-                else sep = line.includes('\t') ? '\t' : (line.includes('|') ? '|' : null);
-
+                let sep = line.includes('\t') ? '\t' : (line.includes('|') ? '|' : null);
                 let r;
                 if (sep) {
                     const p = line.split(sep).map(s => s.trim());
-                    if (p.length < 3) r = { err: 'Thiếu trường (cần: Phần thi, Nguồn, Câu hỏi, Đáp án)' };
+                    if (p.length < 3) r = { err: 'Thiếu trường' };
                     else {
                         const type = parseTypeText(p[0]);
-                        if (!type) r = { err: 'Không nhận ra phần thi "' + p[0] + '"' };
+                        if (!type) r = { err: 'Sai phần thi' };
                         else if (p.length === 3) r = { type, source: '', content: p[1], answer: p[2] };
                         else r = { type, source: p[1], answer: p[p.length - 1], content: p.slice(2, -1).join(sep).trim() };
                     }
                 } else r = parseSpaceLine(line);
-
-                if (!r.err && (!r.content || !r.answer)) r = { err: 'Thiếu nội dung câu hỏi hoặc đáp án' };
+                if (!r.err && (!r.content || !r.answer)) r = { err: 'Thiếu nội dung' };
                 return r.err ? { ok: false, err: r.err, raw: line } : { ok: true, type: r.type, source: r.source, content: r.content, answer: r.answer };
             });
         }
 
-        // ---------- Tiện ích ----------
         const $ = (id) => document.getElementById(id);
         const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         const shuffle = (arr) => { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
@@ -631,43 +592,25 @@
                 $(id).className = TAB_BASE + (key === active ? 'bg-blue-600 text-white shadow' : 'bg-slate-100 text-slate-700 hover:bg-slate-200');
         }
 
-        // ---------- Đăng nhập ----------
         window.loginGoogle = async function () {
             $('login-error').classList.add('hidden');
-            try {
-                await signInWithPopup(auth, new GoogleAuthProvider());
-            } catch (e) {
-                console.error(e);
-                $('login-error').innerText = 'Đăng nhập thất bại: ' + (e.code || e.message);
-                $('login-error').classList.remove('hidden');
-            }
+            try { await signInWithPopup(auth, new GoogleAuthProvider()); }
+            catch (e) { $('login-error').innerText = 'Đăng nhập thất bại: ' + (e.code || e.message); $('login-error').classList.remove('hidden'); }
         };
         window.logout = async function () { cancelGames(); await signOut(auth); };
 
         function applyAdminUI() {
-            // Ngân hàng câu hỏi luôn hiện cho tất cả người dùng
             $('nav-admin').classList.remove('hidden');
             $('nav-admin-m').classList.remove('hidden');
-            
-            // Các chức năng chỉnh sửa chỉ hiện cho Admin
             $('admin-actions-group').classList.toggle('hidden', !isAdmin);
             $('admin-actions-group').classList.toggle('flex', isAdmin);
             $('th-action').classList.toggle('hidden', !isAdmin);
-            
-            if (!isAdmin) {
-                $('bank-subtitle').innerText = 'Tra cứu và xem danh sách toàn bộ câu hỏi trong hệ thống.';
-            } else {
-                $('bank-subtitle').innerText = 'Quản lý, thêm, sửa, xóa câu hỏi trong hệ thống.';
-            }
+            $('bank-subtitle').innerText = isAdmin ? 'Quản lý, thêm, sửa, xóa câu hỏi trong hệ thống.' : 'Tra cứu và xem danh sách toàn bộ câu hỏi trong hệ thống.';
         }
 
         onAuthStateChanged(auth, async (user) => {
             authUser = user;
-            if (!user) {
-                profile = null; isAdmin = false; applyAdminUI();
-                $('login-screen').classList.remove('hidden');
-                return;
-            }
+            if (!user) { profile = null; isAdmin = false; applyAdminUI(); $('login-screen').classList.remove('hidden'); return; }
             try {
                 isAdmin = ADMIN_EMAILS.map(e => e.toLowerCase()).includes((user.email || '').toLowerCase());
                 await ensureProfile(user);
@@ -676,8 +619,7 @@
                 applyAdminUI(); updateUserUI(); updateSavedCount();
                 showPage('home');
             } catch (e) {
-                console.error(e);
-                $('login-error').innerText = 'Không kết nối được máy chủ dữ liệu. Kiểm tra cấu hình Firebase / Firestore rules. (' + (e.code || e.message) + ')';
+                $('login-error').innerText = 'Lỗi kết nối dữ liệu. (' + (e.code || e.message) + ')';
                 $('login-error').classList.remove('hidden');
             }
         });
@@ -685,31 +627,12 @@
         async function ensureProfile(user) {
             const ref = doc(db, 'users', user.uid);
             const snap = await getDoc(ref);
-            if (snap.exists()) {
-                profile = snap.data();
-            } else {
-                profile = {
-                    name: user.displayName || 'Thí sinh',
-                    email: user.email,
-                    className: '',
-                    school: '',
-                    avatar: user.photoURL || '',
-                    saved: [],
-                    createdAt: serverTimestamp()
-                };
+            if (snap.exists()) { profile = snap.data(); }
+            else {
+                profile = { name: user.displayName || 'Thí sinh', email: user.email, className: '', school: '', avatar: user.photoURL || '', saved: [], createdAt: serverTimestamp() };
                 await setDoc(ref, profile);
-                sendWelcomeEmail(user);
             }
             savedIds = profile.saved || [];
-        }
-
-        async function sendWelcomeEmail(user) {
-            try {
-                const token = await user.getIdToken();
-                const res = await fetch('/api/welcome', { method: 'POST', headers: { Authorization: 'Bearer ' + token } });
-                if (res.ok) toast('Đã gửi email chào mừng tới ' + user.email);
-                else console.warn('welcome email failed', await res.text());
-            } catch (e) { console.warn('welcome email error', e); }
         }
 
         function updateUserUI() {
@@ -724,7 +647,6 @@
         }
         function updateSavedCount() { $('saved-count').innerText = savedIds.length; }
 
-        // ---------- Điều hướng ----------
         const GAME_PAGES = ['khoidong', 'vedich-playing', 'kd-result', 'vd-result'];
         window.showPage = function (id) {
             if (!GAME_PAGES.includes(id)) cancelGames();
@@ -739,7 +661,6 @@
             window.scrollTo({ top: 0 });
         };
 
-        // ---------- Hồ sơ ----------
         async function renderProfilePage() {
             $('pf-avatar-img').src = profile.avatar || 'https://ui-avatars.com/api/?background=3b82f6&color=fff&name=' + encodeURIComponent(profile.name);
             $('pf-name-input').value = profile.name || '';
@@ -771,7 +692,7 @@
                     profile.avatar = c.toDataURL('image/jpeg', 0.8);
                     $('pf-avatar-img').src = profile.avatar;
                     try { await updateDoc(doc(db, 'users', authUser.uid), { avatar: profile.avatar }); updateUserUI(); toast('Đã cập nhật ảnh đại diện'); }
-                    catch (err) { toast('Lỗi lưu ảnh: ' + (err.code || err.message)); }
+                    catch (err) { toast('Lỗi lưu ảnh'); }
                 };
                 img.src = e.target.result;
             };
@@ -779,11 +700,7 @@
         };
 
         window.saveProfileChanges = async function () {
-            const data = {
-                name: ($('pf-name-input').value || '').trim() || 'Thí sinh',
-                className: ($('pf-class-input').value || '').trim(),
-                school: ($('pf-school-input').value || '').trim()
-            };
+            const data = { name: ($('pf-name-input').value || '').trim() || 'Thí sinh', className: ($('pf-class-input').value || '').trim(), school: ($('pf-school-input').value || '').trim() };
             try {
                 await updateDoc(doc(db, 'users', authUser.uid), data);
                 Object.assign(profile, data);
@@ -792,11 +709,10 @@
                     if ((await getDoc(r)).exists()) await updateDoc(r, { label: labelOf(profile) });
                 }
                 updateUserUI();
-                toast('Cập nhật thông tin cá nhân thành công!');
-            } catch (e) { toast('Lỗi: ' + (e.code || e.message)); }
+                toast('Cập nhật thành công!');
+            } catch (e) { toast('Lỗi cập nhật'); }
         };
 
-        // ---------- Ngân hàng câu hỏi ----------
         async function loadQuestions() {
             const snap = await getDocs(collection(db, 'questions'));
             questionBank = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -832,7 +748,7 @@
 
             const tbody = $('admin-question-table');
             if (slice.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="${isAdmin ? 5 : 4}" class="p-6 text-center text-slate-500">Chưa có câu hỏi nào trong phần này.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${isAdmin ? 5 : 4}" class="p-6 text-center text-slate-500">Chưa có câu hỏi nào.</td></tr>`;
                 return;
             }
             tbody.innerHTML = slice.map((q, i) => `
@@ -864,30 +780,22 @@
         window.saveQuestion = async function () {
             if (!isAdmin) return;
             const editId = $('edit-q-id').value;
-            const data = {
-                type: $('m-type').value,
-                source: $('m-source').value.trim() || 'Tự soạn',
-                content: $('m-content').value.trim(),
-                answer: $('m-answer').value.trim()
-            };
-            if (!data.content || !data.answer) { toast('Vui lòng điền đủ nội dung và đáp án!'); return; }
+            const data = { type: $('m-type').value, source: $('m-source').value.trim() || 'Tự soạn', content: $('m-content').value.trim(), answer: $('m-answer').value.trim() };
+            if (!data.content || !data.answer) { toast('Vui lòng điền đủ!'); return; }
             try {
                 if (editId) await updateDoc(doc(db, 'questions', editId), data);
                 else await addDoc(collection(db, 'questions'), { ...data, ord: Date.now(), createdAt: serverTimestamp() });
                 await loadQuestions();
                 if (!editId) jumpToLast(data.type);
                 closeQuestionModal(); renderAdminTable();
-                toast('Đã lưu câu hỏi lên máy chủ!');
-            } catch (e) { toast('Lỗi lưu: ' + (e.code || e.message)); }
+                toast('Đã lưu!');
+            } catch (e) { toast('Lỗi lưu'); }
         };
 
         window.deleteQuestion = async function (id) {
-            if (!isAdmin || !confirm('Bạn có chắc muốn xóa câu hỏi này?')) return;
-            try {
-                await deleteDoc(doc(db, 'questions', id));
-                await loadQuestions(); renderAdminTable();
-                toast('Đã xóa câu hỏi.');
-            } catch (e) { toast('Lỗi xóa: ' + (e.code || e.message)); }
+            if (!isAdmin || !confirm('Xóa câu hỏi này?')) return;
+            try { await deleteDoc(doc(db, 'questions', id)); await loadQuestions(); renderAdminTable(); toast('Đã xóa.'); }
+            catch (e) { toast('Lỗi xóa'); }
         };
 
         window.seedQuestions = async function () {
@@ -898,87 +806,49 @@
                 SEED_QUESTIONS.forEach(({ id, ...d }, i) => batch.set(doc(db, 'questions', id), { ...d, ord: base + i, createdAt: serverTimestamp() }));
                 await batch.commit();
                 await loadQuestions(); renderAdminTable();
-                toast('Đã nạp câu hỏi mẫu.');
-            } catch (e) { toast('Lỗi: ' + (e.code || e.message)); }
+                toast('Đã nạp mẫu.');
+            } catch (e) { toast('Lỗi'); }
         };
 
-        // ---------- Nhập câu hỏi tự động ----------
         let importRows = [];
-        const radioVal = (name) => document.querySelector(`input[name=${name}]:checked`).value;
-
-        window.openImportModal = function () {
-            if (!isAdmin) return;
-            $('import-text').value = '';
-            updateImportPreview();
-            $('import-modal').classList.remove('hidden'); $('import-modal').classList.add('flex');
-        };
+        window.openImportModal = function () { if (!isAdmin) return; $('import-text').value = ''; updateImportPreview(); $('import-modal').classList.remove('hidden'); $('import-modal').classList.add('flex'); };
         window.closeImportModal = function () { $('import-modal').classList.add('hidden'); $('import-modal').classList.remove('flex'); };
 
-        window.updateImportPreview = function (ev) {
-            if (ev?.target?.id === 'imp-field-custom') document.querySelector('input[name=imp-field][value=custom]').checked = true;
-            if (ev?.target?.id === 'imp-card-custom') document.querySelector('input[name=imp-card][value=custom]').checked = true;
-
-            importRows = parseImport($('import-text').value, {
-                fieldMode: radioVal('imp-field'), customField: $('imp-field-custom').value,
-                cardMode: radioVal('imp-card') === 'custom' ? 'custom' : 'newline', customCard: $('imp-card-custom').value
-            });
-            const ok = importRows.filter(r => r.ok).length, bad = importRows.length - ok;
-            $('import-summary').innerText = `${ok} câu hợp lệ` + (bad ? `, ${bad} dòng lỗi (sẽ bị bỏ qua)` : '');
+        window.updateImportPreview = function () {
+            importRows = parseImport($('import-text').value);
+            const ok = importRows.filter(r => r.ok).length;
             $('import-confirm').disabled = ok === 0;
-            $('import-confirm').innerText = ok ? `Nhập ${ok} câu hỏi` : 'Nhập';
-            $('import-preview').innerHTML = importRows.length === 0
-                ? '<tr><td colspan="6" class="p-4 text-center text-slate-400">Chưa có dữ liệu để xem trước.</td></tr>'
-                : importRows.slice(0, 200).map((r, i) => r.ok
-                    ? `<tr class="border-b"><td class="p-2 text-slate-400">${i + 1}</td><td class="p-2 font-semibold text-blue-600 whitespace-nowrap">${esc(typeLabel[r.type])}</td><td class="p-2">${esc(r.source || 'Tự soạn')}</td><td class="p-2">${esc(r.content)}</td><td class="p-2 font-bold text-green-700">${esc(r.answer)}</td><td class="p-2 text-green-600 font-bold">✔</td></tr>`
-                    : `<tr class="border-b bg-red-50"><td class="p-2 text-slate-400">${i + 1}</td><td class="p-2 text-slate-600" colspan="4">${esc(r.raw)}</td><td class="p-2 text-red-600 font-semibold">✖ ${esc(r.err)}</td></tr>`).join('');
+            $('import-confirm').innerText = ok ? `Nhập ${ok} câu` : 'Nhập';
         };
 
         window.confirmImport = async function () {
             if (!isAdmin) return;
             const rows = importRows.filter(r => r.ok);
             if (rows.length === 0) return;
-            $('import-confirm').disabled = true; $('import-confirm').innerText = 'Đang nhập...';
             try {
+                const batch = writeBatch(db);
                 const base = Date.now();
-                for (let i = 0; i < rows.length; i += 400) {
-                    const batch = writeBatch(db);
-                    rows.slice(i, i + 400).forEach((r, j) => batch.set(doc(collection(db, 'questions')), {
-                        type: r.type, source: r.source || 'Tự soạn', content: r.content, answer: r.answer,
-                        ord: base + i + j, createdAt: serverTimestamp()
-                    }));
-                    await batch.commit();
-                }
-                await loadQuestions();
-                jumpToLast(rows[rows.length - 1].type);
-                closeImportModal(); renderAdminTable();
-                toast(`Đã nhập ${rows.length} câu hỏi.`);
-            } catch (e) {
-                toast('Lỗi nhập: ' + (e.code || e.message));
-                updateImportPreview();
-            }
+                rows.forEach((r, j) => batch.set(doc(collection(db, 'questions')), { type: r.type, source: r.source || 'Tự soạn', content: r.content, answer: r.answer, ord: base + j, createdAt: serverTimestamp() }));
+                await batch.commit();
+                await loadQuestions(); closeImportModal(); renderAdminTable();
+                toast(`Nhập thành công ${rows.length} câu.`);
+            } catch (e) { toast('Lỗi nhập'); }
         };
 
-        // ---------- Lưu câu hỏi / báo lỗi ----------
         window.toggleSaveQuestion = async function (qId, btn) {
             const has = savedIds.includes(qId);
             try {
                 await updateDoc(doc(db, 'users', authUser.uid), { saved: has ? arrayRemove(qId) : arrayUnion(qId) });
                 savedIds = has ? savedIds.filter(i => i !== qId) : [...savedIds, qId];
                 profile.saved = savedIds;
-                if (btn) {
-                    btn.innerText = has ? '🤍' : '❤️';
-                    btn.classList.toggle('text-red-500', !has);
-                    btn.classList.toggle('text-slate-300', has);
-                }
+                if (btn) { btn.innerText = has ? '🤍' : '❤️'; btn.classList.toggle('text-red-500', !has); btn.classList.toggle('text-slate-300', has); }
                 updateSavedCount();
-            } catch (e) { toast('Lỗi: ' + (e.code || e.message)); }
+            } catch (e) { toast('Lỗi'); }
         };
 
         window.reportQuestion = async function (qId) {
-            try {
-                await addDoc(collection(db, 'reports'), { questionId: qId, uid: authUser.uid, email: authUser.email, createdAt: serverTimestamp() });
-                toast('Đã gửi báo cáo lỗi tới quản trị viên. Cảm ơn bạn!');
-            } catch (e) { toast('Lỗi gửi báo cáo: ' + (e.code || e.message)); }
+            try { await addDoc(collection(db, 'reports'), { questionId: qId, uid: authUser.uid, email: authUser.email, createdAt: serverTimestamp() }); toast('Đã báo cáo.'); }
+            catch (e) { toast('Lỗi'); }
         };
 
         let currentSavedIndex = 0;
@@ -986,12 +856,7 @@
         function renderSavedQuestions() {
             const list = savedQuestionsList();
             const container = $('saved-card-container');
-            if (list.length === 0) {
-                container.innerHTML = '<p class="text-slate-500 text-center py-10">Chưa có câu hỏi nào được lưu ôn tập.</p>';
-                $('saved-page-indicator').innerText = '0 / 0';
-                $('saved-nav-controls').classList.add('hidden');
-                return;
-            }
+            if (list.length === 0) { container.innerHTML = '<p class="text-slate-500 text-center py-10">Chưa có câu hỏi nào được lưu.</p>'; $('saved-nav-controls').classList.add('hidden'); return; }
             $('saved-nav-controls').classList.remove('hidden');
             currentSavedIndex = Math.max(0, Math.min(currentSavedIndex, list.length - 1));
             const q = list[currentSavedIndex];
@@ -1000,10 +865,10 @@
                 <div class="p-6 bg-slate-50 border border-slate-200 rounded-2xl space-y-3 shadow-sm">
                     <div class="flex justify-between items-center">
                         <span class="text-xs font-bold text-blue-600 bg-blue-100 px-3 py-1 rounded-full">${esc(q.source)}</span>
-                        <button onclick="removeSaved('${esc(q.id)}')" class="text-red-500 font-bold text-xs hover:underline">Xóa khỏi lưu</button>
+                        <button onclick="removeSaved('${esc(q.id)}')" class="text-red-500 font-bold text-xs hover:underline">Xóa</button>
                     </div>
-                    <h4 class="font-bold text-slate-800 text-base leading-relaxed">${currentSavedIndex + 1}. ${esc(q.content)}</h4>
-                    <div class="p-3 bg-green-50 border border-green-200 rounded-xl text-green-800 font-bold text-sm">Đáp án chuẩn: ${esc(q.answer)}</div>
+                    <h4 class="font-bold text-slate-800 text-base">${currentSavedIndex + 1}. ${esc(q.content)}</h4>
+                    <div class="p-3 bg-green-50 border border-green-200 rounded-xl text-green-800 font-bold text-sm">Đáp án: ${esc(q.answer)}</div>
                 </div>`;
             $('btn-prev-saved').disabled = currentSavedIndex === 0;
             $('btn-next-saved').disabled = currentSavedIndex === list.length - 1;
@@ -1012,7 +877,6 @@
         window.nextSavedCard = () => { currentSavedIndex++; renderSavedQuestions(); };
         window.removeSaved = async (id) => { await toggleSaveQuestion(id, null); renderSavedQuestions(); };
 
-        // ---------- Bảng xếp hạng ----------
         async function submitScore(type, score) {
             const col = type === 'kd' ? 'lb_kd' : 'lb_vd';
             try {
@@ -1023,7 +887,7 @@
                 if (!cur || cur.weekKey !== wk || score > cur.score) {
                     await setDoc(ref, { label: labelOf(profile), score, weekKey: wk, updatedAt: serverTimestamp() });
                 }
-            } catch (e) { console.warn('submitScore', e); }
+            } catch (e) { console.warn(e); }
         }
 
         let lbTab = 'kd', lbReq = 0;
@@ -1040,17 +904,13 @@
             try {
                 const snap = await getDocs(query(collection(db, isKd ? 'lb_kd' : 'lb_vd'), where('weekKey', '==', weekKeyGMT7())));
                 if (req !== lbReq) return;
-                const rows = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-                    .sort((a, b) => b.score - a.score || tsMs(a.updatedAt) - tsMs(b.updatedAt)).slice(0, 50);
-                if (rows.length === 0) { tb.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-slate-400">Chưa có ai trên bảng xếp hạng.</td></tr>'; return; }
+                const rows = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => b.score - a.score || tsMs(a.updatedAt) - tsMs(b.updatedAt)).slice(0, 50);
+                if (rows.length === 0) { tb.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-slate-400">Chưa có dữ liệu.</td></tr>'; return; }
                 const color = isKd ? 'text-amber-600' : 'text-indigo-600';
                 tb.innerHTML = rows.map((x, i) => `<tr class="border-b ${x.id === authUser.uid ? 'bg-blue-50' : ''}"><td class="p-3 font-bold ${color}">#${i + 1}</td><td class="p-3 font-medium">${esc(x.label)}</td><td class="p-3 text-right font-black">${esc(x.score)} đ</td></tr>`).join('');
-            } catch (e) {
-                if (req === lbReq) tb.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-red-500">Không tải được bảng xếp hạng.</td></tr>';
-            }
+            } catch (e) { if (req === lbReq) tb.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-red-500">Lỗi tải BXH.</td></tr>'; }
         }
 
-        // ---------- Thi: KHỞI ĐỘNG ----------
         let kdTimer = null, kdQuestions = [], kdCurrentIndex = 0, kdScore = 0, kdUserAnswers = [], kdRunning = false;
         let vdTimer = null, vdLuckTimer = null, vdDelayTimer = null;
 
@@ -1063,14 +923,14 @@
 
         window.startKhoidong = function () {
             kdQuestions = shuffle(questionBank.filter(q => q.type === 'khoidong'));
-            if (kdQuestions.length === 0) { toast('Chưa có câu hỏi Khởi động trong ngân hàng!'); showPage('home'); return; }
+            if (kdQuestions.length === 0) { toast('Chưa có câu hỏi Khởi động!'); showPage('home'); return; }
             cancelGames();
             showPage('khoidong');
             kdCurrentIndex = 0; kdScore = 0; kdUserAnswers = []; kdRunning = true;
             $('kd-score').innerText = 0;
             loadKdQuestion();
-            
-            // Phát âm thanh đếm giờ KĐ 60s
+
+            // Chạy nhạc nền Khởi động 60s xuyên suốt
             playAudio('snd-kd-bg');
 
             const bar = $('kd-timer-bar');
@@ -1092,13 +952,9 @@
             const ans = $('kd-answer-input').value;
             const q = kdQuestions[kdCurrentIndex];
             const ok = checkAnswer(ans, q.answer);
-            
-            if (ok) {
-                kdScore += 10;
-                playAudio('snd-kd-correct');
-            } else {
-                playAudio('snd-kd-wrong');
-            }
+
+            if (ok) { kdScore += 10; playAudio('snd-kd-correct'); }
+            else { playAudio('snd-kd-wrong'); }
 
             $('kd-score').innerText = kdScore;
             kdUserAnswers.push({ question: q, userAns: ans, correct: ok });
@@ -1111,30 +967,19 @@
             stopAudio('snd-kd-bg');
             showPage('kd-result');
             $('kd-final-score').innerText = kdScore;
-            $('kd-result-table-body').innerHTML = kdUserAnswers.map((it, i) => resultRowKd(it, i)).join('') ||
-                '<tr><td colspan="7" class="p-6 text-center text-slate-500">Bạn chưa trả lời câu nào.</td></tr>';
+            $('kd-result-table-body').innerHTML = kdUserAnswers.map((it, i) => `
+                <tr class="border-b hover:bg-slate-50">
+                    <td class="p-3 font-semibold">${i + 1}</td>
+                    <td class="p-3 text-xs font-bold text-blue-600">${esc(it.question.source)}</td>
+                    <td class="p-3">${esc(it.question.content)}</td>
+                    <td class="p-3 font-medium text-slate-700">${esc(it.userAns) || '(Không trả lời)'}</td>
+                    <td class="p-3 font-bold text-green-700">${esc(it.question.answer)}</td>
+                    <td class="p-3 text-center">${it.correct ? '<span class="text-green-600 font-bold">✔ Đúng</span>' : '<span class="text-red-500 font-bold">✖ Sai</span>'}</td>
+                    <td class="p-3 text-center space-x-2 whitespace-nowrap"><button onclick="toggleSaveQuestion('${esc(it.question.id)}', this)" class="text-xl">${savedIds.includes(it.question.id) ? '❤️' : '🤍'}</button></td>
+                </tr>`).join('') || '<tr><td colspan="7" class="p-6 text-center text-slate-500">Chưa trả lời câu nào.</td></tr>';
             submitScore('kd', kdScore);
         }
 
-        function heartBtn(qId) {
-            const saved = savedIds.includes(qId);
-            return `<button onclick="toggleSaveQuestion('${esc(qId)}', this)" class="text-xl transition ${saved ? 'text-red-500' : 'text-slate-300 hover:text-red-400'}">${saved ? '❤️' : '🤍'}</button>
-                    <button onclick="reportQuestion('${esc(qId)}')" class="text-slate-400 hover:text-red-600" title="Báo cáo lỗi">🚩</button>`;
-        }
-        const okBadge = (ok) => ok ? '<span class="text-green-600 font-bold">✔ Đúng</span>' : '<span class="text-red-500 font-bold">✖ Sai</span>';
-
-        function resultRowKd(it, i) {
-            return `<tr class="border-b hover:bg-slate-50">
-                <td class="p-3 font-semibold">${i + 1}</td>
-                <td class="p-3 text-xs font-bold text-blue-600">${esc(it.question.source)}</td>
-                <td class="p-3">${esc(it.question.content)}</td>
-                <td class="p-3 font-medium text-slate-700">${esc(it.userAns) || '(Không trả lời)'}</td>
-                <td class="p-3 font-bold text-green-700">${esc(it.question.answer)}</td>
-                <td class="p-3 text-center">${okBadge(it.correct)}</td>
-                <td class="p-3 text-center space-x-2 whitespace-nowrap">${heartBtn(it.question.id)}</td></tr>`;
-        }
-
-        // ---------- Thi: VỀ ĐÍCH ----------
         let vdPkgList = [], vdCurrentIndex = 0, vdScore = 0, vdUserAnswers = [], vdTimeRemaining = 15,
             useStarHope = false, usedStarThisGame = false, currentRecordedAns = '';
 
@@ -1144,7 +989,7 @@
             const picks = [1, 2, 3].map(n => parseInt($('vd-pkg-' + n).value));
             const pools = { 20: shuffle(questionBank.filter(q => q.type === 'vedich20')), 30: shuffle(questionBank.filter(q => q.type === 'vedich30')) };
             for (const p of [20, 30]) {
-                if (picks.includes(p) && pools[p].length === 0) { toast(`Chưa có câu hỏi gói ${p} điểm trong ngân hàng!`); return; }
+                if (picks.includes(p) && pools[p].length === 0) { toast(`Chưa có câu hỏi gói ${p}đ!`); return; }
             }
             const idx = { 20: 0, 30: 0 };
             vdPkgList = picks.map(p => ({ points: p, question: pools[p][idx[p]++ % pools[p].length] }));
@@ -1228,7 +1073,7 @@
             vdTimeRemaining = item.points === 20 ? 15 : 20;
             const secs = vdTimeRemaining;
 
-            // Phát âm thanh đếm giờ tương ứng với gói điểm
+            // Phát âm thanh đếm giờ tương ứng gói điểm Về đích
             if (item.points === 20) playAudio('snd-vd-20');
             else playAudio('snd-vd-30');
 
@@ -1244,7 +1089,7 @@
 
         window.submitVdAnswerPreview = function () {
             currentRecordedAns = $('vd-answer-input').value;
-            $('vd-recorded-display').innerText = `Đáp án ghi nhận: ${currentRecordedAns || '(Chưa nhập)'} (Đã chốt, chờ hết giờ chấm)`;
+            $('vd-recorded-display').innerText = `Đáp án ghi nhận: ${currentRecordedAns || '(Chưa nhập)'} (Đã chốt)`;
         };
 
         function processVdAnswerSubmission() {
@@ -1278,8 +1123,8 @@
                     <td class="p-3">${esc(it.question.content)}</td>
                     <td class="p-3 font-medium text-slate-700">${esc(it.userAns) || '(Không trả lời)'}</td>
                     <td class="p-3 font-bold text-green-700">${esc(it.question.answer)}</td>
-                    <td class="p-3 text-center">${okBadge(it.correct)}</td>
-                    <td class="p-3 text-center space-x-2 whitespace-nowrap">${heartBtn(it.question.id)}</td>
+                    <td class="p-3 text-center">${it.correct ? '<span class="text-green-600 font-bold">✔ Đúng</span>' : '<span class="text-red-500 font-bold">✖ Sai</span>'}</td>
+                    <td class="p-3 text-center"><button onclick="toggleSaveQuestion('${esc(it.question.id)}', this)" class="text-xl">${savedIds.includes(it.question.id) ? '❤️' : '🤍'}</button></td>
                 </tr>`).join('');
             submitScore('vd', vdScore);
         }
