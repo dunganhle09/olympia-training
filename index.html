@@ -509,13 +509,35 @@
 
         const normalizeStr = (str) => String(str || '').toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, 'd').replace(/\s+/g, '').trim();
 
+        // Tách các phương án chấp nhận (ngăn cách bởi dấu /)
         function splitAnswers(ans) {
-            return String(ans || '').split(/(?<=\s)\/|\/(?=\s)/).map(normalizeStr).filter(Boolean);
+            return String(ans || '').split(/(?<=\s)\/|\/(?=\s)/).filter(Boolean);
         }
+
+        // Tách các thành phần ngăn cách bởi dấu phẩy và sắp xếp theo thứ tự bảng chữ cái
+        function normalizeCommaSet(str) {
+            return str.split(',')
+                      .map(s => normalizeStr(s))
+                      .filter(Boolean)
+                      .sort()
+                      .join(',');
+        }
+
+        // Hàm kiểm tra đáp án thông minh (chấp nhận đảo thứ tự khi có dấu phẩy)
         function checkAnswer(userAns, ans) {
-            const u = normalizeStr(userAns);
-            if (!u) return false;
-            return splitAnswers(ans).includes(u);
+            const uRaw = String(userAns || '').trim();
+            if (!uRaw) return false;
+
+            const possibleAnswers = splitAnswers(ans);
+
+            return possibleAnswers.some(targetAns => {
+                // Nếu đáp án có chứa dấu phẩy (so sánh tập hợp không phụ thuộc thứ tự)
+                if (targetAns.includes(',') && uRaw.includes(',')) {
+                    return normalizeCommaSet(uRaw) === normalizeCommaSet(targetAns);
+                }
+                // So sánh chuỗi chuẩn hóa thông thường
+                return normalizeStr(uRaw) === normalizeStr(targetAns);
+            });
         }
 
         function weekKeyGMT7(ms = Date.now()) {
